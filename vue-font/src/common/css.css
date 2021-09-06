@@ -1,0 +1,20 @@
+.duobian {
+  background: url("../assets/duobianxing.png") no-repeat  center center;
+  background-size: 3rem 3rem;
+}
+.reset {
+  background: url("../assets/reset.png") no-repeat  center center;
+  background-size: 3rem 3rem;
+}
+.yuanxing {
+  background: url("../assets/yuanxing.png") no-repeat  center center;
+  background-size: 3rem 3rem;
+}
+.custom-tree-node {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  padding-right: 8px;
+}
