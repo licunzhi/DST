@@ -5,13 +5,21 @@ import com.cz.middlevisual.exception.ServiceException;
 import com.cz.middlevisual.model.ConnectInfo;
 import com.cz.middlevisual.service.ZookeeperService;
 import io.netty.util.internal.ObjectUtil;
+import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.api.GetDataBuilder;
+import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -24,35 +32,99 @@ import java.util.concurrent.CountDownLatch;
 @Service
 public class ZookeeperServiceImpl implements ZookeeperService {
 
-    ZooKeeper zkClient;
+    List<CuratorFramework> zkClientList;
 
     @Override
-    public boolean connect(ConnectInfo connectInfo) {
-        ZooKeeper zooKeeper = null;
-        Integer timeout = Constant.ZOOKEEPER_TIMEOUT;
-        if (!ObjectUtils.isEmpty(connectInfo.getTimeout())) {
-            timeout  = connectInfo.getTimeout();
-        }
+    public synchronized boolean connect(ConnectInfo connectInfo) {
+        //判断是否存在连接
+        isExistConnected(connectInfo);
+        Pair<Integer, Integer> connectTime = initConnectTime(connectInfo);
+        CuratorFramework zooKeeper = null;
         try {
-            final CountDownLatch countDownLatch = new CountDownLatch(1);
-            //连接成功后，会回调watcher监听，此连接操作是异步的，执行完new语句后，直接调用后续代码
-            //  可指定多台服务地址 127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183
-            zooKeeper = new ZooKeeper(connectInfo.getIp()+ Constant.COLON+connectInfo.getPort(), timeout, new Watcher() {
-                @Override
-                public void process(WatchedEvent event) {
-                    if (Event.KeeperState.SyncConnected == event.getState()) {
-                        //如果收到了服务端的响应事件,连接成功
-                        countDownLatch.countDown();
-                    }
-                }
-            });
-            countDownLatch.await();
-            log.info("【初始化ZooKeeper连接状态....】={}", zooKeeper.getState());
+            zooKeeper = CuratorFrameworkFactory.newClient(connectInfo.getIp() + Constant.COLON + connectInfo.getPort(), new ExponentialBackoffRetry(connectTime.getKey(), connectTime.getValue()));
+            zooKeeper.start();
+            zkClientList.add(zooKeeper);
         } catch (Exception e) {
-            log.error("初始化ZooKeeper连接异常....】={}", e);
+            log.error("初始化ZooKeeper连接异常：】={}", e);
             throw new ServiceException("初始化ZooKeeper连接异常....】={}", e);
         }
-        zkClient = zooKeeper;
+        log.info("【新增ZooKeeper节点的连接状态为：】={}", zooKeeper.getState());
         return true;
     }
+
+    @Override
+    public Object retrieve(String path) {
+        CuratorFramework curatorFramework =  getCurator();
+        try {
+            return curatorFramework.getData().forPath(path);
+        } catch (Exception e) {
+            throw new ServiceException( "获取路径["+ path +"]数据失败"+ e.getMessage());
+        }
+    }
+
+    @Override
+    public Object create(String path, String data) {
+        CuratorFramework curator = getCurator();
+        String result;
+        try {
+            result = curator.create().forPath(path, data.getBytes());
+        } catch (Exception e) {
+            throw new ServiceException( "新增数据失败"+ e.getMessage());
+        }
+        return result;
+    }
+
+    /**
+     * 根据条件获取zkList中的客户端
+     * @return
+     */
+    private CuratorFramework getCurator() {
+        if (CollectionUtils.isEmpty(zkClientList)) {
+            throw new ServiceException("未查询到该连接信息，请先建立连接");
+        }
+       return zkClientList.get(0);
+    }
+
+
+    /**
+     * 初始化连接超时时间和连接次数
+     *
+     * @param connectInfo
+     * @return
+     */
+    private Pair<Integer, Integer> initConnectTime(ConnectInfo connectInfo) {
+        Integer timeout = Constant.ZOOKEEPER_TIMEOUT;
+        Integer retriesTimes = Constant.RETRIES_TIMES;
+        if (!ObjectUtils.isEmpty(connectInfo.getTimeout())) {
+            timeout = connectInfo.getTimeout();
+        }
+        if (!ObjectUtils.isEmpty(connectInfo.getRetriesTimes())) {
+            retriesTimes = connectInfo.getRetriesTimes();
+        }
+        return new Pair<>(timeout, retriesTimes);
+
+    }
+
+    /**
+     * 判断当前连接是否已经连接成功
+     *
+     * @param connectInfo
+     */
+    private void isExistConnected(ConnectInfo connectInfo) {
+
+        if (!CollectionUtils.isEmpty(zkClientList)) {
+            zkClientList.forEach(item -> {
+                String connectString =
+                item.getZookeeperClient().getCurrentConnectionString();
+                String[] split = connectString.split(Constant.COLON);
+                if(split[0].equals(connectInfo.getIp())&&split[1].equals(connectInfo.getPort())){
+                    throw new ServiceException( "["+connectString + "]该节点已连接请检查节点状态");
+                }
+            });
+        }else{
+            zkClientList = new ArrayList<>();
+        }
+    }
+
+
 }

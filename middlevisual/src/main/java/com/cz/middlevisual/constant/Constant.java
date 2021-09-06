@@ -11,4 +11,6 @@ public  class Constant {
     public final static String COLON = ":";
 
     public final static Integer ZOOKEEPER_TIMEOUT =  3000;
+
+    public final static Integer RETRIES_TIMES = 3;
 }

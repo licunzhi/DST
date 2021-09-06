@@ -29,24 +29,24 @@ public class ZookeeperController extends BaseController {
 
     @PostMapping(value = "/create")
     @ApiOperation(value = "新增一个数据节点",notes = "新增之后返回对象")
-    public BaseResult create(String data){
-        return BaseResult.successResultCreate(data);
+    public BaseResult create(String path,String data){
+
+
+        return BaseResult.successResultCreate(zookeeperService.create(path,data));
     }
 
     @PostMapping(value = "/retrieve")
     @ApiOperation(value = "查询zookeeper数据",notes = "返回查询结果")
-    public BaseResult retrieve(String data){
+    public BaseResult retrieve(String path){
 
-        return BaseResult.successResultCreate(data);
+        return BaseResult.successResultCreate(zookeeperService.retrieve(path));
     }
 
     @PostMapping(value = "/connect")
-    @ApiOperation(value = "查询zookeeper数据",notes = "返回查询结果")
+    @ApiOperation(value = "新建zookeeper连接",notes = "返回查询结果")
     public BaseResult connect(ConnectInfo connectInfo){
 
         return BaseResult.successResultCreate(zookeeperService.connect(connectInfo));
     }
-
-
 
 }

@@ -18,5 +18,6 @@ public class ConnectInfo {
     String ip;
     String port;
     Integer timeout;
+    Integer retriesTimes;
 
 }
