@@ -121,6 +121,13 @@
         </dependency>
         <!--zookeeper end-->
 
+        <!--common tools start-->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+        </dependency>
+        <!--common tools end-->
+
 
     </dependencies>
 

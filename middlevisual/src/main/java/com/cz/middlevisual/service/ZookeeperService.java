@@ -29,4 +29,10 @@ public interface ZookeeperService {
      * @return
      */
     Object create(String path, String data);
+
+    /**
+     * 获取节点下所有节点
+     * @return
+     */
+    Object retrieveWithChilder(String path);
 }

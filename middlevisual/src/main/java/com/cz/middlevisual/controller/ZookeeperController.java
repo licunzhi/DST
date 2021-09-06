@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @create: 2021-09-06 19:12
  **/
 @RestController
-@RequestMapping("/emp")
+@RequestMapping("/zookeeper")
 @Api(value = "Zookeeper 相关功能接口")
 public class ZookeeperController extends BaseController {
 
@@ -31,22 +31,29 @@ public class ZookeeperController extends BaseController {
     @ApiOperation(value = "新增一个数据节点",notes = "新增之后返回对象")
     public BaseResult create(String path,String data){
 
-
-        return BaseResult.successResultCreate(zookeeperService.create(path,data));
+        Object o = zookeeperService.create(path, data);
+        return BaseResult.successResultCreate(o);
     }
 
     @PostMapping(value = "/retrieve")
     @ApiOperation(value = "查询zookeeper数据",notes = "返回查询结果")
     public BaseResult retrieve(String path){
-
-        return BaseResult.successResultCreate(zookeeperService.retrieve(path));
+        Object retrieve = zookeeperService.retrieve(path);
+        return BaseResult.successResultCreate(retrieve);
     }
 
     @PostMapping(value = "/connect")
     @ApiOperation(value = "新建zookeeper连接",notes = "返回查询结果")
     public BaseResult connect(ConnectInfo connectInfo){
+        boolean connect = zookeeperService.connect(connectInfo);
+        return BaseResult.successResultCreate(connect);
+    }
 
-        return BaseResult.successResultCreate(zookeeperService.connect(connectInfo));
+    @PostMapping(value = "/retrieveAll")
+    @ApiOperation(value = "查询zookeeper数据并返回Tree",notes = "返回查询结果")
+    public BaseResult retrieveWithChilder(String path){
+        Object result = zookeeperService.retrieveWithChilder(path);
+        return BaseResult.successResultCreate(result);
     }
 
 }

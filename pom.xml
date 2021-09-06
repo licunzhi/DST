@@ -28,6 +28,7 @@
         <knife4j.version>2.0.7</knife4j.version>
         <zookeeper.version>3.5.5</zookeeper.version>
         <curator.version>2.11.1</curator.version>
+        <hutool.version>5.7.11</hutool.version>
     </properties>
 
 
@@ -94,6 +95,16 @@
                 <version>${curator.version}</version>
             </dependency>
             <!--zookeeper end-->
+
+            <!--common tools start-->
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>${hutool.version}</version>
+            </dependency>
+            <!--common tools end-->
+
+
         </dependencies>
 
     </dependencyManagement>

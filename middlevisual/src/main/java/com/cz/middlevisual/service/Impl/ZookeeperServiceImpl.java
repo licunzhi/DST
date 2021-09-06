@@ -1,26 +1,21 @@
 package com.cz.middlevisual.service.Impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.cz.middlevisual.constant.Constant;
 import com.cz.middlevisual.exception.ServiceException;
 import com.cz.middlevisual.model.ConnectInfo;
 import com.cz.middlevisual.service.ZookeeperService;
-import io.netty.util.internal.ObjectUtil;
 import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.framework.api.GetDataBuilder;
 import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.ZooKeeper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * @program: DST
@@ -56,7 +51,7 @@ public class ZookeeperServiceImpl implements ZookeeperService {
     public Object retrieve(String path) {
         CuratorFramework curatorFramework =  getCurator();
         try {
-            return curatorFramework.getData().forPath(path);
+            return StrUtil.str(curatorFramework.getData().forPath(path),Constant.UTF8);
         } catch (Exception e) {
             throw new ServiceException( "获取路径["+ path +"]数据失败"+ e.getMessage());
         }
@@ -67,11 +62,21 @@ public class ZookeeperServiceImpl implements ZookeeperService {
         CuratorFramework curator = getCurator();
         String result;
         try {
-            result = curator.create().forPath(path, data.getBytes());
+            result = curator.create().forPath(path, StrUtil.utf8Bytes(data));
         } catch (Exception e) {
             throw new ServiceException( "新增数据失败"+ e.getMessage());
         }
         return result;
+    }
+
+    @Override
+    public Object retrieveWithChilder(String path) {
+        CuratorFramework curator = getCurator();
+        try {
+            return curator.getChildren().forPath(path);
+        } catch (Exception e) {
+            throw new ServiceException( "新增Tree数据失败"+ e.getMessage());
+        }
     }
 
     /**
