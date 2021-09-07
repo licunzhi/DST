@@ -21,5 +21,14 @@ public class NodeInfo {
     Long id;
     String fileType;
     String stat;
+    /**
+     * 节点模式
+     *
+     * PERSISTENT：持久化
+     * PERSISTENT_SEQUENTIAL：持久化并且带序列号
+     * EPHEMERAL：临时
+     * EPHEMERAL_SEQUENTIAL：临时并且带序列号
+     */
+    String nodeModel;
     List<NodeInfo> childern;
 }
