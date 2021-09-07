@@ -32,7 +32,7 @@ require('./mock.js')
 Vue.config.productionTip = false
 
 // 配置全局调用属性
-Vue.prototype.http = ajax
+Vue.prototype.$http = ajax
 Vue.prototype.ajax = ajax
 Vue.prototype.echarts = echarts
 Vue.prototype.qs = qs
