@@ -15,4 +15,6 @@ public  class Constant {
     public final static Integer RETRIES_TIMES = 3;
 
     public final static String UTF8 = "utf-8";
+
+    public final static String SPRIT = "/";
 }

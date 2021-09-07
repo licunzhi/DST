@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * @program: DST
  * @description: Node节点信息
@@ -16,4 +18,7 @@ import lombok.NoArgsConstructor;
 public class NodeInfo {
     String path;
     String data;
+    Long id;
+    Integer fileType;
+    List<NodeInfo> childern;
 }

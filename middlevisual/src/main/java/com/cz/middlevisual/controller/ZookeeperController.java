@@ -57,4 +57,10 @@ public class ZookeeperController extends BaseController {
         return BaseResult.successResultCreate(result);
     }
 
+    @PostMapping(value = "/updateData")
+    @ApiOperation(value = "更新节点数据",notes = "返回查询结果")
+    public BaseResult updateData(NodeInfo nodeInfo){
+        Object result = zookeeperService.updateData(nodeInfo);
+        return BaseResult.successResultCreate(result);
+    }
 }

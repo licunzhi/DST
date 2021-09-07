@@ -1,6 +1,7 @@
 package com.cz.middlevisual.service;
 
 import com.cz.middlevisual.model.ConnectInfo;
+import com.cz.middlevisual.model.NodeInfo;
 
 /**
  * @program: DST
@@ -35,4 +36,11 @@ public interface ZookeeperService {
      * @return
      */
     Object retrieveWithChilder(String path);
+
+    /**
+     * 更新指定节点数据
+     * @param nodeInfo
+     * @return
+     */
+    Object updateData(NodeInfo nodeInfo);
 }
