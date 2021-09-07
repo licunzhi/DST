@@ -78,16 +78,13 @@ public class ZookeeperServiceImpl implements ZookeeperService {
     public NodeInfo retrieveWithChild(String path) {
         CuratorFramework curator = getCurator();
         NodeInfo nodeInfo = new NodeInfo();
-        try {/*
-            CuratorZookeeperClient zookeeperClient = curator.getZookeeperClient();
-            ZooKeeper zooKeeper = zookeeperClient.getZooKeeper();*/
+        try {
 
             if (StrUtil.isEmpty(path)) {
                 path = "/";
             }
             //包装NodeInfo并返回
             Stat stat = curator.checkExists().forPath(path);
-            /*Stat stat = "/".equals(path) ? null : zooKeeper.exists(path, false);*/
             NodeMetadata nodeMetadata = stat != null ? new NodeMetadata(stat) : new NodeMetadata();
 
             return packNodeInfo(path, nodeInfo, curator.getChildren().forPath(path), StrUtil.str(curator.getData().forPath(path), Constant.UTF8), nodeMetadata);
@@ -151,10 +148,8 @@ public class ZookeeperServiceImpl implements ZookeeperService {
     public NodeMetadata metadata(NodeInfo nodeInfo) {
         /*fixme lcz 后续需要从缓存中获取，可能还要牵涉到zk状态检测的接口，避免无用请求次数*/
         CuratorFramework curatorFramework = getCurator();
-        CuratorZookeeperClient zookeeperClient = curatorFramework.getZookeeperClient();
         try {
-            ZooKeeper zooKeeper = zookeeperClient.getZooKeeper();
-            Stat stat = zooKeeper.exists(nodeInfo.getPath(), false);
+            Stat stat = curatorFramework.checkExists().forPath(nodeInfo.getPath());
             if (stat != null) {
                 return new NodeMetadata(stat);
             }
