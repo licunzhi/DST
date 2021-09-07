@@ -57,8 +57,17 @@
       </el-col>
       <el-col :span="18" :offset="1">
         <el-tabs v-model="activeName" @tab-click="handleClickTab">
-
-          <el-tab-pane label="Node Data" name="first"><pre v-highlightA><code>{{ innerHtml }}</code></pre></el-tab-pane>
+          <el-tab-pane label="Node Data" name="first">
+              <codemirror
+              ref="mycode"
+              :value="innerHtml"
+              :options="cmOptions"
+              class="code">
+            </codemirror>
+            <el-button-group style="margin-top: 10px">
+              <el-button size="medium" type="primary" icon="el-icon-document-checked"></el-button>
+            </el-button-group>
+          </el-tab-pane>
 
           <el-tab-pane label="Node Metadata" name="second">
             <el-table :data="tableData" style="width: 100%">
@@ -124,10 +133,18 @@
 
 <script>
 import ZookeeperApi from './ZookeeperApi'
+import modeInfo from './Modes'
+import { codemirror } from 'vue-codemirror'
+import 'codemirror/theme/ambiance.css'
+require('codemirror/mode/javascript/javascript')
+
 let id = 1000
 
 export default {
   name: 'Zookeeper',
+  components: {
+    codemirror
+  },
   data () {
     const data = [{
       id: 'ZK-TREE-ROOT',
@@ -170,6 +187,13 @@ export default {
       }]
     }]
     return {
+      cmOptions: {
+        value: '',
+        mode: 'text/javascript',
+        theme: 'ambiance',
+        readOnly: false
+      },
+      modes: modeInfo,
       data: JSON.parse(JSON.stringify(data)),
       activeName: 'first',
       innerHtml: '@font-face {\n' +
@@ -288,6 +312,7 @@ export default {
       this.dialogCreateNewNode = false
     },
     nodeExpand () {
+      console.log(this.$refs.mycode.content)
     },
     async createNewNodeSubmit () {
       let path = ''

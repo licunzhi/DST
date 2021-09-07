@@ -12,6 +12,9 @@ import './common/css.css'
 // highlight.js代码高亮指令
 import VueHighlightJS from './hightlight/hightlight'
 
+import VueCodeMirror from 'vue-codemirror'
+import 'codemirror/lib/codemirror.css'
+
 // Vuex
 import Vuex from 'vuex'
 
@@ -44,6 +47,8 @@ Vue.use(ElementUI)
 Vue.use(Vuex)
 
 Vue.use(VueHighlightJS)
+
+Vue.use(VueCodeMirror)
 
 const store = new Vuex.Store({
   state: {
