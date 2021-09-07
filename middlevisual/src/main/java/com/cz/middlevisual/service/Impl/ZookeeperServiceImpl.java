@@ -138,7 +138,7 @@ public class ZookeeperServiceImpl implements ZookeeperService {
                 log.error("节点获取失败，请更新已经存在的节点");
                 throw new ServiceException("节点获取失败，请更新已经存在的节点");
             }
-           return curatorFramework.setData().withVersion(stat.getVersion()+1).forPath("path","data".getBytes());
+           return curatorFramework.setData().withVersion(stat.getVersion()+1).forPath(nodeInfo.getPath(),StrUtil.utf8Bytes(nodeInfo.getData()));
 
         } catch (Exception e) {
             log.error("更新节点失败，请重新更新节点"+e.getMessage());
