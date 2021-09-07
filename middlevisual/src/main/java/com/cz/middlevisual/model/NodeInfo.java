@@ -19,6 +19,7 @@ public class NodeInfo {
     String path;
     String data;
     Long id;
-    Integer fileType;
+    String fileType;
+    String stat;
     List<NodeInfo> childern;
 }

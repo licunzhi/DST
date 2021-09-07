@@ -17,4 +17,12 @@ public  class Constant {
     public final static String UTF8 = "utf-8";
 
     public final static String SPRIT = "/";
+
+    public static class FileType{
+        //文件
+        public final static String FILE = "file";
+
+        //文件夹
+        public final static String FOLDER = "folder";
+    }
 }

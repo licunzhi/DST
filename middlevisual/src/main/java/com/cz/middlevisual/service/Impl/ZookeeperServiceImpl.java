@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.apache.zookeeper.data.Stat;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -79,29 +80,44 @@ public class ZookeeperServiceImpl implements ZookeeperService {
             if (StrUtil.isEmpty(path)) {
                 path = "/";
             }
-            //获取所有node
-            List<String> nodeList = curator.getChildren().forPath(path);
-            //获取数据文件
-            String file = StrUtil.str(curator.getData().forPath(path), Constant.UTF8);
-            nodeInfo.setData(file);
-            if (!CollectionUtils.isEmpty(nodeList)) {
-                List<NodeInfo> nodeInfoList  = new ArrayList<>();
-                String finalPath = path;
-                nodeList.forEach(item -> {
-                    String newPath = "";
-                    if (!Constant.SPRIT.equals(finalPath)) {
-                        newPath = finalPath + Constant.SPRIT + item ;
-                    }else{
-                        newPath = finalPath + item;
-                    }
-
-                    nodeInfoList.add(retrieveWithChilder(newPath));
-                });
-                nodeInfo.setChildern(nodeInfoList);
-            }
-
+            //包装NodeInfo并返回
+            byte[] stat = curator.getData().storingStatIn(new Stat()).forPath(path);
+            return packNodeInfo(path, nodeInfo, curator.getChildren().forPath(path), StrUtil.str(curator.getData().forPath(path), Constant.UTF8),StrUtil.str(stat, Constant.UTF8));
         } catch (Exception e) {
             throw new ServiceException("展示Tree数据失败" + e.getMessage());
+        }
+    }
+
+    /**
+     *
+     * @param path 文件查询路径
+     * @param nodeInfo 该节点信息
+     * @param nodeList 路径下所有node
+     * @param file  节点的文件
+     * @return
+     */
+    private NodeInfo packNodeInfo(String path, NodeInfo nodeInfo, List<String> nodeList, String file,String stat) {
+        nodeInfo.setStat(stat);
+        if (StrUtil.isNotEmpty(file)) {
+            nodeInfo.setData(file);
+            nodeInfo.setFileType(Constant.FileType.FILE);
+        }else {
+            nodeInfo.setFileType(Constant.FileType.FOLDER);
+        }
+
+        if (!CollectionUtils.isEmpty(nodeList)) {
+            List<NodeInfo> nodeInfoList = new ArrayList<>();
+            String finalPath = path;
+            nodeList.forEach(item -> {
+                String newPath = "";
+                if (!Constant.SPRIT.equals(finalPath)) {
+                    newPath = finalPath + Constant.SPRIT + item;
+                } else {
+                    newPath = finalPath + item;
+                }
+                nodeInfoList.add(retrieveWithChilder(newPath));
+            });
+            nodeInfo.setChildern(nodeInfoList);
         }
         return nodeInfo;
     }
