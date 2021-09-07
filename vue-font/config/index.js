@@ -12,11 +12,11 @@ module.exports = {
     assetsPublicPath: '/',
     changeOrigin: true,
     proxyTable: {
-      '/sakura': {
-        target: 'http://127.0.0.1:8888',
+      '/cz': {
+        target: 'http://127.0.0.1:8080',
         changeOrigin: true,
         pathRewrite: {
-          '^sakura': ''// 请求路径重写进行覆盖
+          '^cz': ''// 请求路径重写进行覆盖
         }
       }
     },

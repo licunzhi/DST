@@ -2,7 +2,7 @@
     <div class="main-content">
         <div class="main-left">
           <div class="main-logo">
-            PLUM-PARK
+            MIDDLE-VIEW
           </div>
           <div class="main-menu">
             <el-menu class="el-menu-vertical-demo" background-color="#545c64" text-color="#fff"
