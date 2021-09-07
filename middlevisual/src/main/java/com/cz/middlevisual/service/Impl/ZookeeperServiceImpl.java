@@ -6,11 +6,14 @@ import com.cz.middlevisual.exception.ServiceException;
 import com.cz.middlevisual.model.ConnectInfo;
 import com.cz.middlevisual.model.NodeInfo;
 import com.cz.middlevisual.service.ZookeeperService;
+import com.cz.middlevisual.vo.zookeeper.NodeMetadata;
 import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.curator.CuratorZookeeperClient;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -127,6 +130,24 @@ public class ZookeeperServiceImpl implements ZookeeperService {
         CuratorFramework curatorFramework = getCurator();
 
         return null;
+    }
+
+
+    @Override
+    public NodeMetadata metadata(NodeInfo nodeInfo) {
+        /*fixme lcz 后续需要从缓存中获取，可能还要牵涉到zk状态检测的接口，避免无用请求次数*/
+        CuratorFramework curatorFramework = getCurator();
+        CuratorZookeeperClient zookeeperClient = curatorFramework.getZookeeperClient();
+        try {
+            ZooKeeper zooKeeper = zookeeperClient.getZooKeeper();
+            Stat stat = zooKeeper.exists(nodeInfo.getPath(), false);
+            if (stat != null) {
+                return new NodeMetadata(stat);
+            }
+        } catch (Exception e) {
+            throw new ServiceException("获取节点元数据失败" + e.getMessage());
+        }
+        return new NodeMetadata();
     }
 
     /**

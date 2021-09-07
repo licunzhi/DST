@@ -5,10 +5,9 @@ import com.cz.middlevisual.base.BaseResult;
 import com.cz.middlevisual.model.ConnectInfo;
 import com.cz.middlevisual.model.NodeInfo;
 import com.cz.middlevisual.service.ZookeeperService;
+import com.cz.middlevisual.vo.zookeeper.NodeMetadata;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -61,6 +60,13 @@ public class ZookeeperController extends BaseController {
     @ApiOperation(value = "更新节点数据",notes = "返回查询结果")
     public BaseResult updateData(NodeInfo nodeInfo){
         Object result = zookeeperService.updateData(nodeInfo);
+        return BaseResult.successResultCreate(result);
+    }
+
+    @PostMapping(value = "/metadata")
+    @ApiOperation(value = "节点元数据信息",notes = "返回查询结果")
+    public BaseResult<NodeMetadata> metadata(NodeInfo nodeInfo){
+        NodeMetadata result = zookeeperService.metadata(nodeInfo);
         return BaseResult.successResultCreate(result);
     }
 }

@@ -11,6 +11,9 @@ import java.util.List;
  * @create: 2021-09-06 19:34
  **/
 public class BaseResult<T> implements Serializable {
+
+    private static final long serialVersionUID = -8410083111719175072L;
+
     public static final int FAILED = 0;
     public static final int SUCCESS = 1;
     public static final int VALIDATOR = 2;
@@ -66,13 +69,13 @@ public class BaseResult<T> implements Serializable {
         return new BaseResult(0, messageList, data);
     }
 
-    public static BaseResult successResultCreate(Object data) {
+    public static <T> BaseResult<T>  successResultCreate(T data) {
         List<String> messageList = new ArrayList<>();
         messageList.add("操作成功");
         return new BaseResult(1, messageList, data);
     }
 
-    public static BaseResult successResultCreate(String message, Object data) {
+    public static <T> BaseResult<T> successResultCreate(String message, T data) {
         List<String> messageList = new ArrayList<>();
         messageList.add(message);
         return new BaseResult(1, messageList, data);

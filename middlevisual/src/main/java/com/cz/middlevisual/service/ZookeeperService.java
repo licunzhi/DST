@@ -2,6 +2,7 @@ package com.cz.middlevisual.service;
 
 import com.cz.middlevisual.model.ConnectInfo;
 import com.cz.middlevisual.model.NodeInfo;
+import com.cz.middlevisual.vo.zookeeper.NodeMetadata;
 
 /**
  * @program: DST
@@ -43,4 +44,11 @@ public interface ZookeeperService {
      * @return
      */
     Object updateData(NodeInfo nodeInfo);
+
+    /**
+     * 元数据信息
+     * @param nodeInfo 入参
+     * @return 元数据信息
+     */
+    NodeMetadata metadata(NodeInfo nodeInfo);
 }
