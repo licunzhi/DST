@@ -1,7 +1,5 @@
 package com.cz.middlevisual.base;
 
-import com.google.common.collect.Lists;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,13 +10,13 @@ import java.util.List;
  * @author: Cai.Min
  * @create: 2021-09-06 19:34
  **/
-public class BaseResult implements Serializable {
+public class BaseResult<T> implements Serializable {
     public static final int FAILED = 0;
     public static final int SUCCESS = 1;
     public static final int VALIDATOR = 2;
     private int code;
     private List<String> messageList;
-    private Object data;
+    private T data;
 
     public BaseResult() {
     }
@@ -41,7 +39,7 @@ public class BaseResult implements Serializable {
         }
     }
 
-    public BaseResult(int code, List<String> messageList, Object data) {
+    public BaseResult(int code, List<String> messageList, T data) {
         this.code = code;
         this.messageList = messageList;
         this.data = data;
@@ -96,11 +94,11 @@ public class BaseResult implements Serializable {
         this.messageList = messageList;
     }
 
-    public Object getData() {
+    public T getData() {
         return this.data;
     }
 
-    public void setData(Object data) {
+    public void setData(T data) {
         this.data = data;
     }
 }
