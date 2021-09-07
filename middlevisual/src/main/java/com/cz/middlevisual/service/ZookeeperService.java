@@ -36,7 +36,7 @@ public interface ZookeeperService {
      * 获取节点下所有节点
      * @return
      */
-    Object retrieveWithChilder(String path);
+    Object retrieveWithChild(String path);
 
     /**
      * 更新指定节点数据

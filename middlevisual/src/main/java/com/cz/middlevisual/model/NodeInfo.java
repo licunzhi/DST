@@ -1,5 +1,7 @@
 package com.cz.middlevisual.model;
 
+import com.cz.middlevisual.vo.zookeeper.NodeMetadata;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,7 +18,11 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NodeInfo {
+    /**全路径*/
     String path;
+    /**节点名称*/
+    String nodeName;
+
     String data;
     Long id;
     String fileType;
@@ -30,5 +36,9 @@ public class NodeInfo {
      * EPHEMERAL_SEQUENTIAL：临时并且带序列号
      */
     String nodeModel;
-    List<NodeInfo> childern;
+    List<NodeInfo> children;
+
+    /**节点元数据对象信息*/
+    @ApiModelProperty(hidden = true)
+    NodeMetadata nodeMetadata;
 }

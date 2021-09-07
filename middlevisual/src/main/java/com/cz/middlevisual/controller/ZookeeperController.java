@@ -51,8 +51,8 @@ public class ZookeeperController extends BaseController {
 
     @PostMapping(value = "/retrieveAll")
     @ApiOperation(value = "查询zookeeper数据并返回Tree",notes = "返回查询结果")
-    public BaseResult retrieveWithChilder(NodeInfo nodeInfo){
-        Object result = zookeeperService.retrieveWithChilder(nodeInfo.getPath());
+    public BaseResult retrieveWithChild(NodeInfo nodeInfo){
+        Object result = zookeeperService.retrieveWithChild(nodeInfo.getPath());
         return BaseResult.successResultCreate(result);
     }
 

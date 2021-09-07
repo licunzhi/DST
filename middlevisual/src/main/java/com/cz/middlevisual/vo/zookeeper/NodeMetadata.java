@@ -42,7 +42,7 @@ public class NodeMetadata implements Serializable {
     @ApiModelProperty(notes = "最后一次更新节点的事务ID")
     private String mzxid;
     @ApiModelProperty(notes = "当前节点的子节点的个数")
-    private String numChildren;
+    private int numChildren;
     @ApiModelProperty(notes = "子节点最后一次被更新的事务ID")
     private String pzxid;
     @ApiModelProperty(notes = "数据版本号")
@@ -61,7 +61,7 @@ public class NodeMetadata implements Serializable {
         this.mtime = format.format(new Date(stat.getMtime()));
         //this.mzxid = "0x" + Long.toHexString(stat.getMzxid());
         this.mzxid = String.valueOf(stat.getMzxid());
-        this.numChildren = String.valueOf(stat.getNumChildren());
+        this.numChildren = stat.getNumChildren();
         //this.pzxid = "0x" + Long.toHexString(stat.getPzxid());
         this.pzxid = String.valueOf(stat.getPzxid());
         this.dataVersion = String.valueOf(stat.getVersion());

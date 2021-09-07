@@ -75,16 +75,21 @@ public class ZookeeperServiceImpl implements ZookeeperService {
     }
 
     @Override
-    public NodeInfo retrieveWithChilder(String path) {
+    public NodeInfo retrieveWithChild(String path) {
         CuratorFramework curator = getCurator();
         NodeInfo nodeInfo = new NodeInfo();
         try {
+            CuratorZookeeperClient zookeeperClient = curator.getZookeeperClient();
+            ZooKeeper zooKeeper = zookeeperClient.getZooKeeper();
+
             if (StrUtil.isEmpty(path)) {
                 path = "/";
             }
             //包装NodeInfo并返回
-            byte[] stat = curator.getData().storingStatIn(new Stat()).forPath(path);
-            return packNodeInfo(path, nodeInfo, curator.getChildren().forPath(path), StrUtil.str(curator.getData().forPath(path), Constant.UTF8), StrUtil.str(stat, Constant.UTF8));
+            Stat stat = "/".equals(path) ? null : zooKeeper.exists(path, false);
+            NodeMetadata nodeMetadata = stat != null ? new NodeMetadata(stat) : new NodeMetadata();
+
+            return packNodeInfo(path, nodeInfo, curator.getChildren().forPath(path), StrUtil.str(curator.getData().forPath(path), Constant.UTF8), nodeMetadata);
         } catch (Exception e) {
             throw new ServiceException("展示Tree数据失败" + e.getMessage());
         }
@@ -95,30 +100,30 @@ public class ZookeeperServiceImpl implements ZookeeperService {
      * @param nodeInfo 该节点信息
      * @param nodeList 路径下所有node
      * @param file     节点的文件
-     * @return
+     * @return node节点树形数据
      */
-    private NodeInfo packNodeInfo(String path, NodeInfo nodeInfo, List<String> nodeList, String file, String stat) {
-        nodeInfo.setStat(stat);
-        if (StrUtil.isNotEmpty(file)) {
-            nodeInfo.setData(file);
-            nodeInfo.setFileType(Constant.FileType.FILE);
-        } else {
-            nodeInfo.setFileType(Constant.FileType.FOLDER);
-        }
+    private NodeInfo packNodeInfo(String path, NodeInfo nodeInfo, List<String> nodeList, String file, NodeMetadata nodeMetadata) {
+
+        nodeInfo.setNodeMetadata(nodeMetadata);
+        nodeInfo.setData(file);
+        nodeInfo.setId(nodeMetadata.getCzxid() != null ? Long.parseLong(nodeMetadata.getCzxid()) : 0);
+        nodeInfo.setPath(path);
+        nodeInfo.setNodeName(path.substring(path.lastIndexOf("/") + 1));
+        /* folder or file -> num of child */
+        nodeInfo.setFileType(nodeMetadata.getNumChildren() > 0 ? Constant.FileType.FOLDER : Constant.FileType.FILE);
 
         if (!CollectionUtils.isEmpty(nodeList)) {
             List<NodeInfo> nodeInfoList = new ArrayList<>();
-            String finalPath = path;
             nodeList.forEach(item -> {
                 String newPath = "";
-                if (!Constant.SPRIT.equals(finalPath)) {
-                    newPath = finalPath + Constant.SPRIT + item;
+                if (!Constant.SPRIT.equals(path)) {
+                    newPath = path + Constant.SPRIT + item;
                 } else {
-                    newPath = finalPath + item;
+                    newPath = path + item;
                 }
-                nodeInfoList.add(retrieveWithChilder(newPath));
+                nodeInfoList.add(retrieveWithChild(newPath));
             });
-            nodeInfo.setChildern(nodeInfoList);
+            nodeInfo.setChildren(nodeInfoList);
         }
         return nodeInfo;
     }
