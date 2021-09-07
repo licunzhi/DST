@@ -32,7 +32,7 @@ public class ZookeeperController extends BaseController {
     @ApiOperation(value = "新增一个数据节点",notes = "新增之后返回对象")
     public BaseResult create(NodeInfo nodeInfo){
 
-        Object o = zookeeperService.create(nodeInfo.getPath(), nodeInfo.getData());
+        Object o = zookeeperService.create(nodeInfo.getPath(), nodeInfo.getData(),nodeInfo.getNodeModel());
         return BaseResult.successResultCreate(o);
     }
 

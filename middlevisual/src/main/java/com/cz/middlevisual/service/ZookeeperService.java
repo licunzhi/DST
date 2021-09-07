@@ -29,7 +29,7 @@ public interface ZookeeperService {
      * @param data
      * @return
      */
-    Object create(String path, String data);
+    Object create(String path, String data,String nodeModel);
 
     /**
      * 获取节点下所有节点
