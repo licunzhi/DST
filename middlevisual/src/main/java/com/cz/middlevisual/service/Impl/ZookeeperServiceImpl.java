@@ -68,7 +68,7 @@ public class ZookeeperServiceImpl implements ZookeeperService {
         CuratorFramework curator = getCurator();
         String result;
         try {
-            return curator.create().withMode(Constant.NodeModel.getCreateModel(nodeModel)).forPath(path, StrUtil.utf8Bytes(data));
+            return curator.create().creatingParentContainersIfNeeded().withMode(Constant.NodeModel.getCreateModel(nodeModel)).forPath(path, StrUtil.utf8Bytes(data));
         } catch (Exception e) {
             throw new ServiceException("新增数据失败" + e.getMessage());
         }
@@ -78,15 +78,16 @@ public class ZookeeperServiceImpl implements ZookeeperService {
     public NodeInfo retrieveWithChild(String path) {
         CuratorFramework curator = getCurator();
         NodeInfo nodeInfo = new NodeInfo();
-        try {
+        try {/*
             CuratorZookeeperClient zookeeperClient = curator.getZookeeperClient();
-            ZooKeeper zooKeeper = zookeeperClient.getZooKeeper();
+            ZooKeeper zooKeeper = zookeeperClient.getZooKeeper();*/
 
             if (StrUtil.isEmpty(path)) {
                 path = "/";
             }
             //包装NodeInfo并返回
-            Stat stat = "/".equals(path) ? null : zooKeeper.exists(path, false);
+            Stat stat = curator.checkExists().forPath(path);
+            /*Stat stat = "/".equals(path) ? null : zooKeeper.exists(path, false);*/
             NodeMetadata nodeMetadata = stat != null ? new NodeMetadata(stat) : new NodeMetadata();
 
             return packNodeInfo(path, nodeInfo, curator.getChildren().forPath(path), StrUtil.str(curator.getData().forPath(path), Constant.UTF8), nodeMetadata);
@@ -131,8 +132,18 @@ public class ZookeeperServiceImpl implements ZookeeperService {
     @Override
     public Object updateData(NodeInfo nodeInfo) {
         CuratorFramework curatorFramework = getCurator();
+        try {
+            Stat stat = curatorFramework.checkExists().forPath("path");
+            if (ObjectUtils.isEmpty(stat)) {
+                log.error("节点获取失败，请更新已经存在的节点");
+                throw new ServiceException("节点获取失败，请更新已经存在的节点");
+            }
+           return curatorFramework.setData().withVersion(stat.getVersion()+1).forPath("path","data".getBytes());
 
-        return null;
+        } catch (Exception e) {
+            log.error("更新节点失败，请重新更新节点"+e.getMessage());
+            throw new ServiceException("更新节点失败，请重新更新节点"+e.getMessage());
+        }
     }
 
 
