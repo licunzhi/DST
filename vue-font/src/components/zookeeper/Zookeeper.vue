@@ -14,7 +14,7 @@
       <el-col :span="22" :offset="1">
         <el-button :type="zkConnectType" icon="el-icon-caret-right" circle  @click="openConnectDialog"></el-button>
         <!--<el-button :type="zkStopType" icon="el-icon-error" circle @click="removeZkClient"></el-button>-->
-        <el-button type="primary" icon="el-icon-refresh" circle></el-button>
+        <el-button type="primary" icon="el-icon-refresh" circle @click="refreshNodeTree"></el-button>
       </el-col>
     </el-row>
     <!--支撑部数据展示-->
@@ -24,11 +24,15 @@
         <!--default-expand-all-->
         <div class="tree">
           <el-tree
+            ref="dataListRef"
             :data="treeNodes"
-            node-key="id"
+            node-key="path"
+            :default-expanded-keys="idArr"
             :expand-on-click-node="false"
+            :highlight-current = "true"
             @node-click="nodeClickEvent"
-            @node-expand="nodeExpand">
+            @node-expand="nodeExpand"
+            @node-collapse="nodeCollapse">
               <div class="custom-tree-node" slot-scope="{ node, data }">
                  <el-tooltip class="item" effect="dark" :content=data.nodeName placement="bottom">
                     <span class="custom-tree-node-label">
@@ -61,13 +65,13 @@
         <el-tabs v-model="activeName" @tab-click="handleClickTab">
           <el-tab-pane label="Node Data" name="first">
               <codemirror
-              ref="mycode"
+              ref="nodeDataContent"
               :value="nodeDataContent"
               :options="cmOptions"
               class="code">
             </codemirror>
             <el-button-group style="margin-top: 10px">
-              <el-button size="medium" type="primary" icon="el-icon-document-checked"></el-button>
+              <el-button size="medium" type="primary" icon="el-icon-document-checked" @click="updateNodeData"></el-button>
             </el-button-group>
           </el-tab-pane>
 
@@ -161,6 +165,7 @@ export default {
       },
       modes: modeInfo,
       treeNodes: JSON.parse(JSON.stringify(defaultTreeNode)),
+      idArr: ['/'],
       activeName: 'first',
       innerHtml: '@font-face {\n' +
         "  font-family: Chunkfive; src: url('Chunkfive.otf');\n" +
@@ -198,6 +203,7 @@ export default {
       metadata: [],
       acls: [],
       nodeDataContent: '',
+      nodePath: '',
       dialogConnectSetting: false,
       settingForm: {
         ip: '127.0.0.1',
@@ -236,7 +242,6 @@ export default {
     },
 
     remove (node, data) {
-      alert('删除操作')
       const parent = node.parent
       const children = parent.data.children || parent.data
       const index = children.findIndex(d => d.id === data.id)
@@ -245,6 +250,15 @@ export default {
 
     openConnectDialog () {
       this.dialogConnectSetting = true
+    },
+    async refreshNodeTree () {
+      const treeResponseData = await this.$http.post(ZookeeperApi.ZK_RETRIEVE_All, {})
+      if (treeResponseData.data && treeResponseData.data.code === 1) {
+        this.treeNodes = []
+        this.treeNodes.push(treeResponseData.data.data)
+      } else {
+        this.treeNodes = defaultTreeNode
+      }
     },
     // 提交连接事件
     /*
@@ -263,7 +277,6 @@ export default {
         if (treeResponseData.data && treeResponseData.data.code === 1) {
           this.treeNodes = []
           this.treeNodes.push(treeResponseData.data.data)
-          console.log(JSON.stringify(this.treeNodes))
         } else {
           this.treeNodes = defaultTreeNode
         }
@@ -289,8 +302,29 @@ export default {
       this.createNodeForm.node = ''
       this.dialogCreateNewNode = false
     },
-    nodeExpand () {
-      console.log(this.$refs.mycode.content)
+    async updateNodeData () {
+      const response = await this.$http.post(ZookeeperApi.ZK_UPDATE_DATA, {
+        path: this.nodePath,
+        data: this.$refs.nodeDataContent.content
+      })
+      if (response.data && response.data.code === 1) {
+        this.$message.success(response.data.messageList[0])
+      } else {
+        this.$message.success(response.data.messageList[0])
+      }
+    },
+    nodeExpand (data) {
+      this.idArr.push(data.path)
+    },
+    nodeCollapse (data) {
+      let index = -1
+      for (var i = 0; i < this.idArr.length; i++) {
+        if (this.idArr[i] === data.path) {
+          index = i
+          break
+        }
+      }
+      this.idArr.splice(index, 1)
     },
     nodeClickEvent (data) {
       let keys = Object.keys(data.nodeMetadata)
@@ -321,7 +355,9 @@ export default {
         })
       })
       this.acls = dataArrAcl
+
       this.nodeDataContent = data.data
+      this.nodePath = data.path
     },
     async createNewNodeSubmit () {
       let path = ''
@@ -351,10 +387,25 @@ export default {
   margin-bottom: 20px
 }
 .tree{
-  overflow-y: hidden;
+  overflow-y: auto;
   overflow-x: auto;
+  max-height: 800px;
 }
 .tree /deep/ .el-tree-node.is-expanded > .el-tree-node__children {
   display: inline;
+}
+
+.custom-tree-node {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  padding-right: 8px;
+}
+.custom-tree-node-label {
+  width: 70%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>
