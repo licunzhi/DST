@@ -61,4 +61,11 @@ public interface ZookeeperService {
      * @return 访问控制列表
      */
     List<NodeAcls> acls(String path);
+
+    /**
+     * 删除节点
+     * @param nodeInfo
+     * @return
+     */
+    Boolean delete(NodeInfo nodeInfo);
 }

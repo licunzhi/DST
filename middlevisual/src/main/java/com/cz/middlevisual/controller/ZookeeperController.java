@@ -80,4 +80,11 @@ public class ZookeeperController extends BaseController {
         List<NodeAcls> result = zookeeperService.acls(nodeInfo.getPath());
         return BaseResult.successResultCreate(result);
     }
+
+    @PostMapping(value = "/delete")
+    @ApiOperation(value = "访问控制列表",notes = "返回查询结果")
+    public BaseResult<Boolean> delete(@RequestBody NodeInfo nodeInfo){
+        Boolean result = zookeeperService.delete(nodeInfo);
+        return BaseResult.successResultCreate(result);
+    }
 }

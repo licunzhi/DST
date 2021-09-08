@@ -145,11 +145,11 @@ public class ZookeeperServiceImpl implements ZookeeperService {
                 log.error("节点获取失败，请更新已经存在的节点");
                 throw new ServiceException("节点获取失败，请更新已经存在的节点");
             }
-           return curatorFramework.setData().withVersion(stat.getVersion()+1).forPath(nodeInfo.getPath(),StrUtil.utf8Bytes(nodeInfo.getData()));
+            return curatorFramework.setData().withVersion(stat.getVersion() + 1).forPath(nodeInfo.getPath(), StrUtil.utf8Bytes(nodeInfo.getData()));
 
         } catch (Exception e) {
-            log.error("更新节点失败，请重新更新节点"+e.getMessage());
-            throw new ServiceException("更新节点失败，请重新更新节点"+e.getMessage());
+            log.error("更新节点失败，请重新更新节点" + e.getMessage());
+            throw new ServiceException("更新节点失败，请重新更新节点" + e.getMessage());
         }
     }
 
@@ -179,6 +179,18 @@ public class ZookeeperServiceImpl implements ZookeeperService {
             throw new ServiceException("获取节点访问控制列表失败" + e.getMessage());
         }
         return nodeAclsList;
+    }
+
+    @Override
+    public Boolean delete(NodeInfo nodeInfo) {
+        CuratorFramework curator = getCurator();
+        try {
+            curator.delete().deletingChildrenIfNeeded().forPath(nodeInfo.getPath());
+        } catch (Exception e) {
+            log.error("递归删除子节点失败" + e.getMessage());
+            throw new ServiceException("递归删除子节点失败" + e.getMessage());
+        }
+        return true;
     }
 
     /**
