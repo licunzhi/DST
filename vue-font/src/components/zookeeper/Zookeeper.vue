@@ -66,8 +66,9 @@
           <el-tab-pane label="Node Data" name="first">
               <codemirror
               ref="nodeDataContent"
-              :value="nodeDataContent"
+              :code.sync="nodeDataContent"
               :options="cmOptions"
+              @change="changeCodeContent"
               class="code">
             </codemirror>
             <el-button-group style="margin-top: 10px">
@@ -167,39 +168,7 @@ export default {
       treeNodes: JSON.parse(JSON.stringify(defaultTreeNode)),
       idArr: ['/'],
       activeName: 'first',
-      innerHtml: '@font-face {\n' +
-        "  font-family: Chunkfive; src: url('Chunkfive.otf');\n" +
-        '}\n' +
-        '\n' +
-        'body, .usertext {\n' +
-        '  color: #F0F0F0; background: #600;\n' +
-        '  font-family: Chunkfive, sans;\n' +
-        '  --heading-1: 30px/32px Helvetica, sans-serif;\n' +
-        '}\n' +
-        '\n' +
-        '@import url(print.css);\n' +
-        '@media print {\n' +
-        '  a[href^=http]::after {\n' +
-        '    content: attr(href)\n' +
-        '  }\n' +
-        '}',
-      tableData: [{
-        k: '2016-05-02',
-        v: '王小虎',
-        alias: '上海市普陀区金沙江路 1518 弄'
-      }, {
-        k: '2016-05-04',
-        v: '王小虎',
-        alias: '上海市普陀区金沙江路 1517 弄'
-      }, {
-        k: '2016-05-01',
-        v: '王小虎',
-        alias: '上海市普陀区金沙江路 1519 弄'
-      }, {
-        k: '2016-05-03',
-        v: '王小虎',
-        alias: '上海市普陀区金沙江路 1516 弄'
-      }],
+      innerHtml: '',
       metadata: [],
       acls: [],
       nodeDataContent: '',
@@ -232,7 +201,6 @@ export default {
         console.log(data)
       }
 
-      alert('弹出添加操作')
       // eslint-disable-next-line no-undef
       const newChild = {id: id++, label: 'testtest', children: []}
       if (!data.children) {
@@ -316,12 +284,16 @@ export default {
       this.createNodeForm.node = ''
       this.dialogCreateNewNode = false
     },
+    changeCodeContent (content) {
+      console.log(content)
+    },
     async updateNodeData () {
       const response = await this.$http.post(ZookeeperApi.ZK_UPDATE_DATA, {
         path: this.nodePath,
         data: this.$refs.nodeDataContent.content
       })
       if (response.data && response.data.code === 1) {
+        await this.refreshNodeTree()
         this.$message.success(response.data.messageList[0])
       } else {
         this.$message.success(response.data.messageList[0])
@@ -371,21 +343,20 @@ export default {
       this.acls = dataArrAcl
 
       this.nodeDataContent = data.data
+      /* fix data no change action */
+      this.$refs.nodeDataContent.content = data.data
       this.nodePath = data.path
     },
     async createNewNodeSubmit () {
-      let path = ''
-      let node = this.createNodeForm.node
-      while (node.data.id !== 'ZK-TREE-ROOT') {
-        path = '/' + node.data.label + path
-        node = node.parent
-      }
-      path = path + '/' + this.createNodeForm.name
+      let split = this.createNodeForm.nodeData.path === '/' ? '' : '/'
+      let path = this.createNodeForm.nodeData.path + split + this.createNodeForm.name
       const resultData = await this.$http.post(ZookeeperApi.ZK_CREATE, {
         path: path,
-        data: this.createNodeForm.data
+        data: this.createNodeForm.data,
+        nodeModel: 'PERSISTENT'
       })
       if (resultData.data && resultData.data.code === 1) {
+        await this.refreshNodeTree()
         this.$message.success(resultData.data.messageList[0])
         this.dialogCreateNewNode = false
       } else {
