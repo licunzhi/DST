@@ -34,7 +34,7 @@
             @node-expand="nodeExpand"
             @node-collapse="nodeCollapse">
               <div class="custom-tree-node" slot-scope="{ node, data }">
-                 <el-tooltip class="item" effect="dark" :content=data.nodeName placement="bottom">
+                 <el-tooltip class="item" effect="dark" :content=data.nodeName placement="right-end">
                     <span class="custom-tree-node-label">
                       <el-tag size="mini" type="warning">
                         <i :class="{'el-icon-folder-opened' : data.fileType === 'folder', 'el-icon-document-remove' : data.fileType === 'file'}"></i>
@@ -50,7 +50,7 @@
                     @click="() => createNewNode(data, node)">
                   </el-button>
                   <el-button
-                    v-if="data.id !== 'ZK-TREE-ROOT'"
+                    v-if="data.path !== '/'"
                     type="text"
                     size="mini"
                     icon="el-icon-delete"
@@ -242,10 +242,24 @@ export default {
     },
 
     remove (node, data) {
-      const parent = node.parent
-      const children = parent.data.children || parent.data
-      const index = children.findIndex(d => d.id === data.id)
-      children.splice(index, 1)
+      this.$confirm('确认删除该节点或递归子节点数据？', 'Tips', {
+        confirmButtonText: 'ok',
+        cancelButtonText: 'cancel',
+        type: 'warn',
+        callback: async action => {
+          if (action === 'confirm') {
+            const treeResponseData = await this.$http.post(ZookeeperApi.ZK_DElETE, {
+              path: data.path
+            })
+            if (treeResponseData.data && treeResponseData.data.code === 1) {
+              const parent = node.parent
+              const children = parent.data.children || parent.data
+              const index = children.findIndex(d => d.id === data.id)
+              children.splice(index, 1)
+            }
+          }
+        }
+      })
     },
 
     openConnectDialog () {
