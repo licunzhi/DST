@@ -110,12 +110,15 @@ public class ZookeeperServiceImpl implements ZookeeperService {
 
         nodeInfo.setNodeMetadata(nodeMetadata);
         nodeInfo.setNodeAclsList(acls(path));
-        nodeInfo.setData(file);
-        nodeInfo.setId(nodeMetadata.getCzxid() != null ? Long.parseLong(nodeMetadata.getCzxid()) : 0);
+        nodeInfo.setData(file == null ? "" : file);
+        nodeInfo.setId(nodeMetadata.getCzxid() != null ? Long.parseLong(nodeMetadata.getCzxid()) : -1);
         nodeInfo.setPath(path);
         nodeInfo.setNodeName(path.substring(path.lastIndexOf("/") + 1));
         /* folder or file -> num of child */
         nodeInfo.setFileType(nodeMetadata.getNumChildren() > 0 ? Constant.FileType.FOLDER : Constant.FileType.FILE);
+        if (StrUtil.equals("/", path)) {
+            nodeInfo.setFileType(Constant.FileType.FOLDER);
+        }
 
         if (!CollectionUtils.isEmpty(nodeList)) {
             List<NodeInfo> nodeInfoList = new ArrayList<>();
@@ -137,7 +140,7 @@ public class ZookeeperServiceImpl implements ZookeeperService {
     public Object updateData(NodeInfo nodeInfo) {
         CuratorFramework curatorFramework = getCurator();
         try {
-            Stat stat = curatorFramework.checkExists().forPath("path");
+            Stat stat = curatorFramework.checkExists().forPath(nodeInfo.getPath());
             if (ObjectUtils.isEmpty(stat)) {
                 log.error("节点获取失败，请更新已经存在的节点");
                 throw new ServiceException("节点获取失败，请更新已经存在的节点");
