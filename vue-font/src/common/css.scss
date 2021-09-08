@@ -10,3 +10,13 @@
   background: url("../assets/yuanxing.png") no-repeat  center center;
   background-size: 3rem 3rem;
 }
+/*.tree{
+  overflow-y: hidden;
+  overflow-x: auto;
+}
+.tree .el-tree {
+  &>>>.el-tree-node {
+    min-width: 100%;
+    display: inline-block !important;
+  }
+}*/

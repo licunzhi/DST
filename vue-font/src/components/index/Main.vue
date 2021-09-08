@@ -126,7 +126,6 @@ export default {
   position: absolute;
   top: 15px;
   width: calc(100% - 360px);
-  height: calc(100% - 125px);
   overflow: auto;
 }
 .setting-location {

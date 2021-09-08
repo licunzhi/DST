@@ -7,7 +7,7 @@ import router from './router'
 // 引入UI组件
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
-import './common/css.css'
+import './common/css.scss'
 
 // highlight.js代码高亮指令
 import VueHighlightJS from './hightlight/hightlight'

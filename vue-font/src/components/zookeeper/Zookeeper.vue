@@ -24,16 +24,17 @@
         <!--default-expand-all-->
         <div class="tree">
           <el-tree
-            :data="data"
+            :data="treeNodes"
             node-key="id"
             :expand-on-click-node="false"
             @node-expand="nodeExpand">
               <div class="custom-tree-node" slot-scope="{ node, data }">
-                 <el-tooltip class="item" effect="dark" :content=node.label placement="bottom">
+                 <el-tooltip class="item" effect="dark" :content=data.nodeName placement="bottom">
                     <span class="custom-tree-node-label">
-                      <el-tag size="mini" type="warning"><i
-                        :class="{'el-icon-folder-opened' : data.fileType === 'folder', 'el-icon-document-remove' : data.fileType === 'file'}"></i></el-tag>
-                      {{ node.label }}
+                      <el-tag size="mini" type="warning">
+                        <i :class="{'el-icon-folder-opened' : data.fileType === 'folder', 'el-icon-document-remove' : data.fileType === 'file'}"></i>
+                      </el-tag>
+                      {{ data.nodeName }}
                     </span>
                 </el-tooltip>
                 <span>
@@ -139,6 +140,12 @@ import 'codemirror/theme/ambiance.css'
 require('codemirror/mode/javascript/javascript')
 
 let id = 1000
+const defaultTreeNode = [{
+  id: 'ZK-TREE-ROOT',
+  label: 'No Data',
+  fileType: 'folder',
+  children: []
+}]
 
 export default {
   name: 'Zookeeper',
@@ -146,46 +153,6 @@ export default {
     codemirror
   },
   data () {
-    const data = [{
-      id: 'ZK-TREE-ROOT',
-      label: 'ZK-TREE-ROOT',
-      fileType: 'folder',
-      children: [{
-        id: '1',
-        label: '1',
-        fileType: 'folder',
-        children: [{
-          id: '2',
-          label: '2',
-          fileType: 'folder',
-          children: [{
-            id: '3',
-            label: '3',
-            fileType: 'folder',
-            children: [{
-              id: '4',
-              label: '4',
-              fileType: 'folder',
-              children: [{
-                id: '5',
-                label: '5',
-                fileType: 'folder',
-                children: [{
-                  id: '6',
-                  label: '6',
-                  fileType: 'folder',
-                  children: [{
-                    id: '7',
-                    label: '7',
-                    fileType: 'folder'
-                  }]
-                }]
-              }]
-            }]
-          }]
-        }]
-      }]
-    }]
     return {
       cmOptions: {
         value: '',
@@ -194,7 +161,7 @@ export default {
         readOnly: false
       },
       modes: modeInfo,
-      data: JSON.parse(JSON.stringify(data)),
+      treeNodes: JSON.parse(JSON.stringify(defaultTreeNode)),
       activeName: 'first',
       innerHtml: '@font-face {\n' +
         "  font-family: Chunkfive; src: url('Chunkfive.otf');\n" +
@@ -289,6 +256,15 @@ export default {
       if (resultData.data && resultData.data.code === 1) {
         this.$message.success(resultData.data.messageList[0])
         this.dialogConnectSetting = false
+
+        const treeResponseData = await this.$http.post(ZookeeperApi.ZK_RETRIEVE_All, {})
+        if (treeResponseData.data && treeResponseData.data.code === 1) {
+          this.treeNodes = []
+          this.treeNodes.push(treeResponseData.data.data)
+          console.log(JSON.stringify(this.treeNodes))
+        } else {
+          this.treeNodes = defaultTreeNode
+        }
       } else {
         this.$message.error(resultData.data.messageList[0])
       }
@@ -341,28 +317,11 @@ export default {
 .el-row {
   margin-bottom: 20px
 }
-.custom-tree-node {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 14px;
-  padding-right: 8px;
-}
-
 .tree{
   overflow-y: hidden;
   overflow-x: auto;
 }
-.el-tree {
-  &>>>.el-tree-node {
-    min-width: 100%;
-    display: inline-block !important;
-  }
-}
-.custom-tree-node-label {
-  width: 74%;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.tree /deep/ .el-tree-node.is-expanded > .el-tree-node__children {
+  display: inline;
 }
 </style>
