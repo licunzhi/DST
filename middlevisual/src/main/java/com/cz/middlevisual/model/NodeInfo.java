@@ -1,5 +1,6 @@
 package com.cz.middlevisual.model;
 
+import com.cz.middlevisual.vo.zookeeper.NodeAcls;
 import com.cz.middlevisual.vo.zookeeper.NodeMetadata;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -41,4 +42,6 @@ public class NodeInfo {
     /**节点元数据对象信息*/
     @ApiModelProperty(hidden = true)
     NodeMetadata nodeMetadata;
+    @ApiModelProperty(hidden = true)
+    List<NodeAcls> nodeAclsList;
 }

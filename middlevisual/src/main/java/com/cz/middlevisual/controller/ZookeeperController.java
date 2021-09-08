@@ -5,13 +5,17 @@ import com.cz.middlevisual.base.BaseResult;
 import com.cz.middlevisual.model.ConnectInfo;
 import com.cz.middlevisual.model.NodeInfo;
 import com.cz.middlevisual.service.ZookeeperService;
+import com.cz.middlevisual.vo.zookeeper.NodeAcls;
 import com.cz.middlevisual.vo.zookeeper.NodeMetadata;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * @program: DST
@@ -29,7 +33,7 @@ public class ZookeeperController extends BaseController {
 
     @PostMapping(value = "/create")
     @ApiOperation(value = "新增一个数据节点",notes = "新增之后返回对象")
-    public BaseResult create(NodeInfo nodeInfo){
+    public BaseResult create(@RequestBody NodeInfo nodeInfo){
 
         Object o = zookeeperService.create(nodeInfo.getPath(), nodeInfo.getData(),nodeInfo.getNodeModel());
         return BaseResult.successResultCreate(o);
@@ -37,36 +41,43 @@ public class ZookeeperController extends BaseController {
 
     @PostMapping(value = "/retrieve")
     @ApiOperation(value = "查询zookeeper数据",notes = "返回查询结果")
-    public BaseResult retrieve(NodeInfo nodeInfo){
+    public BaseResult retrieve(@RequestBody NodeInfo nodeInfo){
         Object retrieve = zookeeperService.retrieve(nodeInfo.getPath());
         return BaseResult.successResultCreate(retrieve);
     }
 
     @PostMapping(value = "/connect")
     @ApiOperation(value = "新建zookeeper连接",notes = "返回查询结果")
-    public BaseResult connect(ConnectInfo connectInfo){
+    public BaseResult connect(@RequestBody ConnectInfo connectInfo){
         boolean connect = zookeeperService.connect(connectInfo);
         return BaseResult.successResultCreate(connect);
     }
 
     @PostMapping(value = "/retrieveAll")
     @ApiOperation(value = "查询zookeeper数据并返回Tree",notes = "返回查询结果")
-    public BaseResult retrieveWithChild(NodeInfo nodeInfo){
+    public BaseResult retrieveWithChild(@RequestBody NodeInfo nodeInfo){
         Object result = zookeeperService.retrieveWithChild(nodeInfo.getPath());
         return BaseResult.successResultCreate(result);
     }
 
     @PostMapping(value = "/updateData")
     @ApiOperation(value = "更新节点数据",notes = "返回查询结果")
-    public BaseResult updateData(NodeInfo nodeInfo){
+    public BaseResult updateData(@RequestBody NodeInfo nodeInfo){
         Object result = zookeeperService.updateData(nodeInfo);
         return BaseResult.successResultCreate(result);
     }
 
     @PostMapping(value = "/metadata")
     @ApiOperation(value = "节点元数据信息",notes = "返回查询结果")
-    public BaseResult<NodeMetadata> metadata(NodeInfo nodeInfo){
+    public BaseResult<NodeMetadata> metadata(@RequestBody NodeInfo nodeInfo){
         NodeMetadata result = zookeeperService.metadata(nodeInfo);
+        return BaseResult.successResultCreate(result);
+    }
+
+    @PostMapping(value = "/acls")
+    @ApiOperation(value = "访问控制列表",notes = "返回查询结果")
+    public BaseResult<List<NodeAcls>> acls(@RequestBody NodeInfo nodeInfo){
+        List<NodeAcls> result = zookeeperService.acls(nodeInfo.getPath());
         return BaseResult.successResultCreate(result);
     }
 }

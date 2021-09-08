@@ -2,7 +2,10 @@ package com.cz.middlevisual.service;
 
 import com.cz.middlevisual.model.ConnectInfo;
 import com.cz.middlevisual.model.NodeInfo;
+import com.cz.middlevisual.vo.zookeeper.NodeAcls;
 import com.cz.middlevisual.vo.zookeeper.NodeMetadata;
+
+import java.util.List;
 
 /**
  * @program: DST
@@ -51,4 +54,11 @@ public interface ZookeeperService {
      * @return 元数据信息
      */
     NodeMetadata metadata(NodeInfo nodeInfo);
+
+    /**
+     * 访问控制列表
+     * @param path 入参
+     * @return 访问控制列表
+     */
+    List<NodeAcls> acls(String path);
 }

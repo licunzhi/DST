@@ -79,10 +79,9 @@
           </el-tab-pane>
 
           <el-tab-pane label="Node ACLs" name="third">
-            <el-table :data="tableData" style="width: 100%">
-              <el-table-column prop="k" label="k" width="180"></el-table-column>
-              <el-table-column prop="v" label="v" width="180"></el-table-column>
-              <el-table-column prop="alias" label="alias"></el-table-column>
+            <el-table :data="acls" style="width: 100%">
+              <el-table-column prop="k" label="key" width="180"></el-table-column>
+              <el-table-column prop="v" label="value"></el-table-column>
             </el-table>
           </el-tab-pane>
         </el-tabs>
@@ -197,6 +196,7 @@ export default {
         alias: '上海市普陀区金沙江路 1516 弄'
       }],
       metadata: [],
+      acls: [],
       nodeDataContent: '',
       dialogConnectSetting: false,
       settingForm: {
@@ -255,7 +255,7 @@ export default {
     async onSubmit () {
       const params = this.settingForm
       const resultData = await this.$http.post(ZookeeperApi.ZK_CONNECT, params)
-      if (resultData.data && resultData.data.code === 1) {
+      if (resultData.data /* && resultData.data.code === 1 */) {
         this.$message.success(resultData.data.messageList[0])
         this.dialogConnectSetting = false
 
@@ -293,7 +293,6 @@ export default {
       console.log(this.$refs.mycode.content)
     },
     nodeClickEvent (data) {
-      debugger
       let keys = Object.keys(data.nodeMetadata)
       let values = Object.values(data.nodeMetadata)
       let dataArr = []
@@ -303,8 +302,25 @@ export default {
           v: values[index]
         })
       })
-      console.log(keys)
       this.metadata = dataArr
+
+      let dataArrAcl = []
+      data.nodeAclsList.forEach((value, location) => {
+        dataArrAcl.push({
+          k: 'NO.' + (location + 1),
+          v: ''
+        })
+
+        let keysAcl = Object.keys(value)
+        let valuesAcl = Object.values(value)
+        keysAcl.forEach((k, index) => {
+          dataArrAcl.push({
+            k: k,
+            v: valuesAcl[index]
+          })
+        })
+      })
+      this.acls = dataArrAcl
       this.nodeDataContent = data.data
     },
     async createNewNodeSubmit () {

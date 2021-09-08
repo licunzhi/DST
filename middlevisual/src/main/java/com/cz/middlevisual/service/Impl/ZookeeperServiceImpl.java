@@ -6,6 +6,7 @@ import com.cz.middlevisual.exception.ServiceException;
 import com.cz.middlevisual.model.ConnectInfo;
 import com.cz.middlevisual.model.NodeInfo;
 import com.cz.middlevisual.service.ZookeeperService;
+import com.cz.middlevisual.vo.zookeeper.NodeAcls;
 import com.cz.middlevisual.vo.zookeeper.NodeMetadata;
 import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +14,9 @@ import org.apache.curator.CuratorZookeeperClient;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Stat;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -21,7 +24,10 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @program: DST
@@ -84,7 +90,7 @@ public class ZookeeperServiceImpl implements ZookeeperService {
                 path = "/";
             }
             //包装NodeInfo并返回
-            Stat stat = curator.checkExists().forPath(path);
+            Stat stat = StrUtil.equals("/", path) ? null : curator.checkExists().forPath(path);
             NodeMetadata nodeMetadata = stat != null ? new NodeMetadata(stat) : new NodeMetadata();
 
             return packNodeInfo(path, nodeInfo, curator.getChildren().forPath(path), StrUtil.str(curator.getData().forPath(path), Constant.UTF8), nodeMetadata);
@@ -103,6 +109,7 @@ public class ZookeeperServiceImpl implements ZookeeperService {
     private NodeInfo packNodeInfo(String path, NodeInfo nodeInfo, List<String> nodeList, String file, NodeMetadata nodeMetadata) {
 
         nodeInfo.setNodeMetadata(nodeMetadata);
+        nodeInfo.setNodeAclsList(acls(path));
         nodeInfo.setData(file);
         nodeInfo.setId(nodeMetadata.getCzxid() != null ? Long.parseLong(nodeMetadata.getCzxid()) : 0);
         nodeInfo.setPath(path);
@@ -146,10 +153,9 @@ public class ZookeeperServiceImpl implements ZookeeperService {
 
     @Override
     public NodeMetadata metadata(NodeInfo nodeInfo) {
-        /*fixme lcz 后续需要从缓存中获取，可能还要牵涉到zk状态检测的接口，避免无用请求次数*/
-        CuratorFramework curatorFramework = getCurator();
+        CuratorFramework curator = getCurator();
         try {
-            Stat stat = curatorFramework.checkExists().forPath(nodeInfo.getPath());
+            Stat stat = curator.checkExists().forPath(nodeInfo.getPath());
             if (stat != null) {
                 return new NodeMetadata(stat);
             }
@@ -157,6 +163,19 @@ public class ZookeeperServiceImpl implements ZookeeperService {
             throw new ServiceException("获取节点元数据失败" + e.getMessage());
         }
         return new NodeMetadata();
+    }
+
+    @Override
+    public List<NodeAcls> acls(String path) {
+        List<NodeAcls> nodeAclsList = new ArrayList<>();
+        CuratorFramework curator = getCurator();
+        try {
+            List<ACL> aclList = curator.getACL().forPath(path);
+            nodeAclsList = aclList.stream().map(NodeAcls::new).collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new ServiceException("获取节点访问控制列表失败" + e.getMessage());
+        }
+        return nodeAclsList;
     }
 
     /**
