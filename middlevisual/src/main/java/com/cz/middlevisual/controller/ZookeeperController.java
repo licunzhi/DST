@@ -82,7 +82,7 @@ public class ZookeeperController extends BaseController {
     }
 
     @PostMapping(value = "/delete")
-    @ApiOperation(value = "访问控制列表",notes = "返回查询结果")
+    @ApiOperation(value = "节点删除操作[递归支持]",notes = "返回查询结果")
     public BaseResult<Boolean> delete(@RequestBody NodeInfo nodeInfo){
         Boolean result = zookeeperService.delete(nodeInfo);
         return BaseResult.successResultCreate(result);
