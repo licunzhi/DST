@@ -27,6 +27,7 @@
             :data="treeNodes"
             node-key="id"
             :expand-on-click-node="false"
+            @node-click="nodeClickEvent"
             @node-expand="nodeExpand">
               <div class="custom-tree-node" slot-scope="{ node, data }">
                  <el-tooltip class="item" effect="dark" :content=data.nodeName placement="bottom">
@@ -61,7 +62,7 @@
           <el-tab-pane label="Node Data" name="first">
               <codemirror
               ref="mycode"
-              :value="innerHtml"
+              :value="nodeDataContent"
               :options="cmOptions"
               class="code">
             </codemirror>
@@ -71,10 +72,9 @@
           </el-tab-pane>
 
           <el-tab-pane label="Node Metadata" name="second">
-            <el-table :data="tableData" style="width: 100%">
-              <el-table-column prop="k" label="k" width="180"></el-table-column>
-              <el-table-column prop="v" label="v" width="180"></el-table-column>
-              <el-table-column prop="alias" label="alias"></el-table-column>
+            <el-table :data="metadata" style="width: 100%">
+              <el-table-column prop="k" label="key" width="180"></el-table-column>
+              <el-table-column prop="v" label="value"></el-table-column>
             </el-table>
           </el-tab-pane>
 
@@ -196,6 +196,8 @@ export default {
         v: '王小虎',
         alias: '上海市普陀区金沙江路 1516 弄'
       }],
+      metadata: [],
+      nodeDataContent: '',
       dialogConnectSetting: false,
       settingForm: {
         ip: '127.0.0.1',
@@ -289,6 +291,21 @@ export default {
     },
     nodeExpand () {
       console.log(this.$refs.mycode.content)
+    },
+    nodeClickEvent (data) {
+      debugger
+      let keys = Object.keys(data.nodeMetadata)
+      let values = Object.values(data.nodeMetadata)
+      let dataArr = []
+      keys.forEach((k, index) => {
+        dataArr.push({
+          k: k,
+          v: values[index]
+        })
+      })
+      console.log(keys)
+      this.metadata = dataArr
+      this.nodeDataContent = data.data
     },
     async createNewNodeSubmit () {
       let path = ''
