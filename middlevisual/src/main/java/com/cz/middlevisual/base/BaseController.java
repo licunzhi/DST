@@ -26,7 +26,7 @@ public class BaseController {
             request.setAttribute("requestHeader", "ajax");
         }
 
-        return exception instanceof HttpMessageNotReadableException ? BaseResult.failResultCreate("向后台传递的数据格式有不正确的") : BaseResult.failResultCreate("后台没有响应，请重试。", exception.toString());
+        return exception instanceof HttpMessageNotReadableException ? BaseResult.failResultCreate("向后台传递的数据格式有不正确的") : BaseResult.failResultCreate("后台没有响应，请重试。"+exception.toString());
     }
 
     public String getErrorInfoFromException(Exception e) {
