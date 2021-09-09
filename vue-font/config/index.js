@@ -13,7 +13,7 @@ module.exports = {
     changeOrigin: true,
     proxyTable: {
       '/cz': {
-        target: 'http://127.0.0.1:8080',
+        target: 'http://127.0.0.1:2021',
         changeOrigin: true,
         pathRewrite: {
           '^cz': ''// 请求路径重写进行覆盖

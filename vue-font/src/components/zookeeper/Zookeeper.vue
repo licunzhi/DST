@@ -63,7 +63,7 @@
       </el-col>
       <el-col :span="18" :offset="1">
         <el-tabs v-model="activeName" @tab-click="handleClickTab">
-          <el-tab-pane label="Node Data" name="first">
+          <el-tab-pane label="Node Data" name="first" class="codeContent">
               <codemirror
               ref="nodeDataContent"
               :code.sync="nodeDataContent"
@@ -143,7 +143,6 @@ import { codemirror } from 'vue-codemirror'
 import 'codemirror/theme/ambiance.css'
 require('codemirror/mode/javascript/javascript')
 
-let id = 1000
 const defaultTreeNode = [{
   id: 'ZK-TREE-ROOT',
   label: 'No Data',
@@ -162,7 +161,9 @@ export default {
         value: '',
         mode: 'text/javascript',
         theme: 'ambiance',
-        readOnly: false
+        readOnly: false,
+        tabSize: 4,
+        lineNumbers: true
       },
       modes: modeInfo,
       treeNodes: JSON.parse(JSON.stringify(defaultTreeNode)),
@@ -194,21 +195,6 @@ export default {
   },
 
   methods: {
-
-    append (data, nodeId) {
-      // 代码流程， 需要先判断是不是root节点，如果要是root节点的话直接进行 路径创建就行了，如果不是的话需要进行路径拼接
-      if (nodeId === 'ZK-TREE-ROOT') {
-        console.log(data)
-      }
-
-      // eslint-disable-next-line no-undef
-      const newChild = {id: id++, label: 'testtest', children: []}
-      if (!data.children) {
-        this.$set(data, 'children', [])
-      }
-      data.children.push(newChild)
-    },
-
     remove (node, data) {
       this.$confirm('确认删除该节点或递归子节点数据？', 'Tips', {
         confirmButtonText: 'ok',
@@ -375,7 +361,17 @@ export default {
   overflow-y: auto;
   overflow-x: auto;
   max-height: 800px;
+  min-height: 600px;
+  border-right: 1px solid #e6e6e6;
 }
+.codeContent {
+  & /deep/ .CodeMirror {
+    height: 600px!important;
+    max-height: 600px!important;
+    min-height: 600px!important;
+  }
+}
+
 .tree /deep/ .el-tree-node.is-expanded > .el-tree-node__children {
   display: inline;
 }
