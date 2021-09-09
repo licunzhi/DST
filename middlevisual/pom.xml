@@ -6,9 +6,9 @@
         <groupId>com.cz</groupId>
         <artifactId>middlevisual-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath>../pom.xml</relativePath>
     </parent>
-    <groupId>com.cz</groupId>
+
     <artifactId>middlevisual</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>middlevisual</name>
@@ -127,6 +127,13 @@
             <artifactId>hutool-all</artifactId>
         </dependency>
         <!--common tools end-->
+
+        <!--thymeleaf start-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+        <!--thymeleaf end-->
 
 
     </dependencies>
