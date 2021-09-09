@@ -11,7 +11,7 @@ public class MiddlevisualApplication {
 
         /*fixme lcz 使用监听器单独实现启动项目打开某个地址*/
         try {
-            Runtime.getRuntime().exec("cmd /c start http://localhost:8080/cz/doc.html");
+            Runtime.getRuntime().exec("cmd /c start http://localhost:2021/cz/");
         } catch (Exception e) {
             e.printStackTrace();
         }

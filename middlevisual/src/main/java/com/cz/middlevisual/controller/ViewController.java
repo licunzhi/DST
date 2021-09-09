@@ -2,9 +2,9 @@ package com.cz.middlevisual.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @ClassName ViewController
@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
  * @Author lcz
  * @Date 2021/09/09 09:15
  */
-@RestController
-@RequestMapping("/view")
+@Controller
+/*fixme lcz 和caimin协商后确定*/
+//@RequestMapping("/mm-zz")
+@RequestMapping
 @Api(value = "视图解析页面跳转")
 public class ViewController {
 
