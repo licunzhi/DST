@@ -16,7 +16,6 @@ axios.defaults.timeout = TIMEOUT
 
 // 每次去sessionStorage中获取token作为请求一部分
 axios.interceptors.request.use(config => {
-  console.log(config)
   config.headers = {
     'Content-Type': 'application/json'
   }

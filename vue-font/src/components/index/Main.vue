@@ -2,11 +2,10 @@
     <div class="main-content">
         <div class="main-left">
           <div class="main-logo">
-            MIDDLE-VIEW
+            D_S_T
           </div>
           <div class="main-menu">
-            <el-menu class="el-menu-vertical-demo" background-color="#545c64" text-color="#fff"
-                     active-text-color="#ffd04b"
+            <el-menu class="el-menu-vertical-demo"
                      @open="handleOpen" @close="handleClose"
                      @select="handleSelect"
                      :router='true'>
@@ -23,24 +22,6 @@
         </div>
         <div class="main-right">
           <div class="content-header">
-            <!--<div class="user-info" style="display: flex; flex-direction: row-reverse">
-              &lt;!&ndash;icon of setting&ndash;&gt;
-              <el-dropdown style="padding: auto;" class="setting-location">
-                <el-avatar :size="50" src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"></el-avatar>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item>详情</el-dropdown-item>
-                  <el-dropdown-item>修改密码</el-dropdown-item>
-                  <el-divider></el-divider>
-                  <el-dropdown-item>注销</el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
-            </div>-->
-            <!--<div class="main-content-bread">
-              <el-breadcrumb separator="/">
-                <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-                <el-breadcrumb-item>列表</el-breadcrumb-item>
-              </el-breadcrumb>
-            </div>-->
           </div>
           <div class="main-content-body">
             <router-view></router-view>
@@ -80,16 +61,15 @@ export default {
   overflow: hidden;
 }
 .main-left {
-  width: 360px;
+  width: 250px;
   height: 100%;
-  background-color: rgb(84, 92, 100);
 }
 .main-logo {
   height: 100px;
-  background-color: #545c64;
   font-size: 50px;
   line-height: 2;
   text-align: center;
+  background-color: rgb(84, 92, 100);
   color: #fff;
   border-bottom: 1px solid rgb(238, 238, 238);
 }
@@ -101,6 +81,7 @@ export default {
   height: calc(100% - 100px);
   overflow-y: auto;
   overflow-x: hidden;
+  border-right: 1px solid #e6e6e6;
 }
 .main-right {
   width: calc(100% - 360px);

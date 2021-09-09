@@ -1,0 +1,12 @@
+server:
+  servlet:
+    context-path: /cz
+  port: 2021
+spring:
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    mode: LEGACYHTML5
+    suffix: .html
+    encoding: utf-8
+    enabled: true
