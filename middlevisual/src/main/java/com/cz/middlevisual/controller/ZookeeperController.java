@@ -35,14 +35,14 @@ public class ZookeeperController extends BaseController {
     @ApiOperation(value = "新增一个数据节点",notes = "新增之后返回对象")
     public BaseResult create(@RequestBody NodeInfo nodeInfo){
 
-        Object o = zookeeperService.create(nodeInfo.getPath(), nodeInfo.getData(),nodeInfo.getNodeModel());
+        NodeInfo o = zookeeperService.create(nodeInfo.getPath(), nodeInfo.getData(),nodeInfo.getNodeModel(),nodeInfo.getConnectInfo());
         return BaseResult.successResultCreate(o);
     }
 
     @PostMapping(value = "/retrieve")
     @ApiOperation(value = "查询zookeeper数据",notes = "返回查询结果")
     public BaseResult retrieve(@RequestBody NodeInfo nodeInfo){
-        Object retrieve = zookeeperService.retrieve(nodeInfo.getPath());
+        Object retrieve = zookeeperService.retrieve(nodeInfo.getPath(),nodeInfo.getConnectInfo());
         return BaseResult.successResultCreate(retrieve);
     }
 
@@ -56,14 +56,14 @@ public class ZookeeperController extends BaseController {
     @PostMapping(value = "/retrieveAll")
     @ApiOperation(value = "查询zookeeper数据并返回Tree",notes = "返回查询结果")
     public BaseResult retrieveWithChild(@RequestBody NodeInfo nodeInfo){
-        Object result = zookeeperService.retrieveWithChild(nodeInfo.getPath());
+        NodeInfo result = zookeeperService.getDataWithChild(nodeInfo);
         return BaseResult.successResultCreate(result);
     }
 
     @PostMapping(value = "/updateData")
     @ApiOperation(value = "更新节点数据",notes = "返回查询结果")
     public BaseResult updateData(@RequestBody NodeInfo nodeInfo){
-        Object result = zookeeperService.updateData(nodeInfo);
+        NodeInfo result = zookeeperService.updateData(nodeInfo);
         return BaseResult.successResultCreate(result);
     }
 
@@ -77,14 +77,14 @@ public class ZookeeperController extends BaseController {
     @PostMapping(value = "/acls")
     @ApiOperation(value = "访问控制列表",notes = "返回查询结果")
     public BaseResult<List<NodeAcls>> acls(@RequestBody NodeInfo nodeInfo){
-        List<NodeAcls> result = zookeeperService.acls(nodeInfo.getPath());
+        List<NodeAcls> result = zookeeperService.acls(nodeInfo.getPath(),nodeInfo.getConnectInfo());
         return BaseResult.successResultCreate(result);
     }
 
     @PostMapping(value = "/delete")
     @ApiOperation(value = "节点删除操作[递归支持]",notes = "返回查询结果")
     public BaseResult<Boolean> delete(@RequestBody NodeInfo nodeInfo){
-        Boolean result = zookeeperService.delete(nodeInfo);
+        Boolean result = zookeeperService.delete(nodeInfo,nodeInfo.getConnectInfo());
         return BaseResult.successResultCreate(result);
     }
 }

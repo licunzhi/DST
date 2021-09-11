@@ -23,10 +23,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -39,7 +36,9 @@ import java.util.stream.Collectors;
 @Service
 public class ZookeeperServiceImpl implements ZookeeperService {
 
-    List<CuratorFramework> zkClientList;
+    Map<String,CuratorFramework> zkClientMap;
+
+    Map<String,NodeInfo> zkCache = new HashMap<>();
 
     @Override
     public synchronized boolean connect(ConnectInfo connectInfo) {
@@ -50,7 +49,7 @@ public class ZookeeperServiceImpl implements ZookeeperService {
         try {
             zooKeeper = CuratorFrameworkFactory.newClient(connectInfo.getIp() + Constant.COLON + connectInfo.getPort(), new ExponentialBackoffRetry(connectTime.getKey(), connectTime.getValue()));
             zooKeeper.start();
-            zkClientList.add(zooKeeper);
+            zkClientMap.put(connectInfo.getIp()+ Constant.COLON +connectInfo.getPort(),zooKeeper);
         } catch (Exception e) {
             log.error("初始化ZooKeeper连接异常：】={}", e);
             throw new ServiceException("初始化ZooKeeper连接异常....】={}", e);
@@ -60,8 +59,8 @@ public class ZookeeperServiceImpl implements ZookeeperService {
     }
 
     @Override
-    public Object retrieve(String path) {
-        CuratorFramework curatorFramework = getCurator();
+    public Object retrieve(String path,ConnectInfo connectInfo) {
+        CuratorFramework curatorFramework = getCurator(connectInfo);
         try {
             return StrUtil.str(curatorFramework.getData().forPath(path), Constant.UTF8);
         } catch (Exception e) {
@@ -70,19 +69,26 @@ public class ZookeeperServiceImpl implements ZookeeperService {
     }
 
     @Override
-    public Object create(String path, String data, String nodeModel) {
-        CuratorFramework curator = getCurator();
-        String result;
+    public NodeInfo create(String path, String data, String nodeModel,ConnectInfo connectInfo) {
+        CuratorFramework curator = getCurator(connectInfo);
         try {
-            return curator.create().creatingParentContainersIfNeeded().withMode(Constant.NodeModel.getCreateModel(nodeModel)).forPath(path, StrUtil.utf8Bytes(data));
+            curator.create().creatingParentContainersIfNeeded().withMode(Constant.NodeModel.getCreateModel(nodeModel)).forPath(path, StrUtil.utf8Bytes(data));
+            updateZkCache(connectInfo);
+            return zkCache.get(connectInfo.getIp()+ Constant.COLON +connectInfo.getPort());
         } catch (Exception e) {
             throw new ServiceException("新增数据失败" + e.getMessage());
         }
     }
 
+
+    private synchronized void updateZkCache(ConnectInfo connectInfo) {
+        NodeInfo nodeInfo = retrieveWithChild("", connectInfo);
+        zkCache.put(connectInfo.getIp()+ Constant.COLON +connectInfo.getPort(),nodeInfo);
+    }
+
     @Override
-    public NodeInfo retrieveWithChild(String path) {
-        CuratorFramework curator = getCurator();
+    public NodeInfo retrieveWithChild(String path,ConnectInfo connectInfo) {
+        CuratorFramework curator = getCurator(connectInfo);
         NodeInfo nodeInfo = new NodeInfo();
         try {
 
@@ -93,7 +99,7 @@ public class ZookeeperServiceImpl implements ZookeeperService {
             Stat stat = StrUtil.equals("/", path) ? null : curator.checkExists().forPath(path);
             NodeMetadata nodeMetadata = stat != null ? new NodeMetadata(stat) : new NodeMetadata();
 
-            return packNodeInfo(path, nodeInfo, curator.getChildren().forPath(path), StrUtil.str(curator.getData().forPath(path), Constant.UTF8), nodeMetadata);
+            return packNodeInfo(path, nodeInfo, curator.getChildren().forPath(path), StrUtil.str(curator.getData().forPath(path), Constant.UTF8), nodeMetadata,connectInfo);
         } catch (Exception e) {
             throw new ServiceException("展示Tree数据失败" + e.getMessage());
         }
@@ -106,10 +112,10 @@ public class ZookeeperServiceImpl implements ZookeeperService {
      * @param file     节点的文件
      * @return node节点树形数据
      */
-    private NodeInfo packNodeInfo(String path, NodeInfo nodeInfo, List<String> nodeList, String file, NodeMetadata nodeMetadata) {
+    private NodeInfo packNodeInfo(String path, NodeInfo nodeInfo, List<String> nodeList, String file, NodeMetadata nodeMetadata,ConnectInfo connectInfo) {
 
         nodeInfo.setNodeMetadata(nodeMetadata);
-        nodeInfo.setNodeAclsList(acls(path));
+        nodeInfo.setNodeAclsList(acls(path,connectInfo));
         nodeInfo.setData(file == null ? "" : file);
         nodeInfo.setId(nodeMetadata.getCzxid() != null ? Long.parseLong(nodeMetadata.getCzxid()) : -1);
         nodeInfo.setPath(path);
@@ -129,7 +135,7 @@ public class ZookeeperServiceImpl implements ZookeeperService {
                 } else {
                     newPath = path + item;
                 }
-                nodeInfoList.add(retrieveWithChild(newPath));
+                nodeInfoList.add(retrieveWithChild(newPath,connectInfo));
             });
             nodeInfo.setChildren(nodeInfoList);
         }
@@ -137,15 +143,19 @@ public class ZookeeperServiceImpl implements ZookeeperService {
     }
 
     @Override
-    public Object updateData(NodeInfo nodeInfo) {
-        CuratorFramework curatorFramework = getCurator();
+    public NodeInfo updateData(NodeInfo nodeInfo) {
+        CuratorFramework curatorFramework = getCurator(nodeInfo.getConnectInfo());
+        ConnectInfo connectInfo =  nodeInfo.getConnectInfo();
         try {
             Stat stat = curatorFramework.checkExists().forPath(nodeInfo.getPath());
             if (ObjectUtils.isEmpty(stat)) {
                 log.error("节点获取失败，请更新已经存在的节点");
                 throw new ServiceException("节点获取失败，请更新已经存在的节点");
             }
-            return curatorFramework.setData().forPath(nodeInfo.getPath(), StrUtil.utf8Bytes(nodeInfo.getData()));
+            curatorFramework.setData().forPath(nodeInfo.getPath(), StrUtil.utf8Bytes(nodeInfo.getData()));
+            updateZkCache(connectInfo);
+
+            return zkCache.get(connectInfo.getIp()+ Constant.COLON +connectInfo.getPort());
 
         } catch (Exception e) {
             log.error("更新节点失败，请重新更新节点" + e.getMessage());
@@ -156,7 +166,7 @@ public class ZookeeperServiceImpl implements ZookeeperService {
 
     @Override
     public NodeMetadata metadata(NodeInfo nodeInfo) {
-        CuratorFramework curator = getCurator();
+        CuratorFramework curator = getCurator(nodeInfo.getConnectInfo());
         try {
             Stat stat = curator.checkExists().forPath(nodeInfo.getPath());
             if (stat != null) {
@@ -169,9 +179,9 @@ public class ZookeeperServiceImpl implements ZookeeperService {
     }
 
     @Override
-    public List<NodeAcls> acls(String path) {
+    public List<NodeAcls> acls(String path,ConnectInfo connectInfo) {
         List<NodeAcls> nodeAclsList = new ArrayList<>();
-        CuratorFramework curator = getCurator();
+        CuratorFramework curator = getCurator(connectInfo);
         try {
             List<ACL> aclList = curator.getACL().forPath(path);
             nodeAclsList = aclList.stream().map(NodeAcls::new).collect(Collectors.toList());
@@ -182,10 +192,11 @@ public class ZookeeperServiceImpl implements ZookeeperService {
     }
 
     @Override
-    public Boolean delete(NodeInfo nodeInfo) {
-        CuratorFramework curator = getCurator();
+    public Boolean delete(NodeInfo nodeInfo,ConnectInfo connectInfo) {
+        CuratorFramework curator = getCurator(connectInfo);
         try {
             curator.delete().deletingChildrenIfNeeded().forPath(nodeInfo.getPath());
+            updateZkCache(connectInfo);
         } catch (Exception e) {
             log.error("递归删除子节点失败" + e.getMessage());
             throw new ServiceException("递归删除子节点失败" + e.getMessage());
@@ -193,16 +204,50 @@ public class ZookeeperServiceImpl implements ZookeeperService {
         return true;
     }
 
+    @Override
+    public synchronized void addCache(NodeInfo nodeInfo,ConnectInfo connectInfo) {
+        String  zkCacheKey = connectInfo.getIp()+ Constant.COLON +connectInfo.getPort();
+        if (!zkCache.containsKey(zkCacheKey)) {
+            nodeInfo.setConnectInfo(connectInfo);
+            zkCache.put(zkCacheKey,nodeInfo);
+        }
+    }
+
+    @Override
+    public NodeInfo getDataWithChild(NodeInfo nodeInfo) {
+        Pair<Boolean, NodeInfo> dataWithCache = getDataWithCache(nodeInfo.getConnectInfo());
+        if (!dataWithCache.getKey()) {
+            return dataWithCache.getValue();
+        }
+        //说明缓存中没有key 添加数据Key
+        NodeInfo retrieveWithChild = retrieveWithChild(nodeInfo.getPath(),nodeInfo.getConnectInfo());
+        addCache(retrieveWithChild,nodeInfo.getConnectInfo());
+        return retrieveWithChild;
+    }
+
+    /**
+     * 根据ConnectInfo获取连接信息
+     * @param connectInfo
+     */
+    private synchronized Pair<Boolean,NodeInfo> getDataWithCache(ConnectInfo connectInfo) {
+        String  zkCacheKey = connectInfo.getIp()+ Constant.COLON +connectInfo.getPort();
+        if (zkCache.containsKey(zkCacheKey)) {
+            return new Pair<Boolean,NodeInfo>(Constant.TRUE,zkCache.get(zkCacheKey));
+        }
+        return new Pair<Boolean,NodeInfo>(Constant.TRUE,null);
+    }
+
     /**
      * 根据条件获取zkList中的客户端
      *
      * @return
      */
-    private CuratorFramework getCurator() {
-        if (CollectionUtils.isEmpty(zkClientList)) {
+    private CuratorFramework getCurator(ConnectInfo connectInfo) {
+        if (CollectionUtils.isEmpty(zkClientMap)) {
             throw new ServiceException("未查询到该连接信息，请先建立连接");
         }
-        return zkClientList.get(0);
+        String zkClienCacheKey =  connectInfo.getIp()+ Constant.COLON +connectInfo.getPort();
+        return zkClientMap.get(zkClienCacheKey);
     }
 
 
@@ -232,17 +277,13 @@ public class ZookeeperServiceImpl implements ZookeeperService {
      */
     private void isExistConnected(ConnectInfo connectInfo) {
 
-        if (!CollectionUtils.isEmpty(zkClientList)) {
-            zkClientList.forEach(item -> {
-                String connectString =
-                        item.getZookeeperClient().getCurrentConnectionString();
-                String[] split = connectString.split(Constant.COLON);
-                if (split[0].equals(connectInfo.getIp()) && split[1].equals(connectInfo.getPort())) {
-                    throw new ServiceException("[" + connectString + "]该节点已连接请检查节点状态");
-                }
-            });
+        if (!CollectionUtils.isEmpty(zkClientMap)) {
+           String zkClienCacheKey =  connectInfo.getIp()+ Constant.COLON +connectInfo.getPort();
+            if (zkClientMap.containsKey(zkClienCacheKey)) {
+                throw new ServiceException("[" + zkClienCacheKey + "]该节点已连接请检查节点状态");
+            }
         } else {
-            zkClientList = new ArrayList<>();
+            zkClientMap = new HashMap<>();
         }
     }
 

@@ -26,27 +26,27 @@ public interface ZookeeperService {
      * @param path
      * @return
      */
-    Object retrieve(String path);
+    Object retrieve(String path,ConnectInfo connectInfo);
     /**
      * 根据路径创建节点
      * @param path
      * @param data
      * @return
      */
-    Object create(String path, String data,String nodeModel);
+    NodeInfo create(String path, String data,String nodeModel,ConnectInfo connectInfo);
 
     /**
-     * 获取节点下所有节点
+     * 获取节点下所有节点，不从缓存走
      * @return
      */
-    Object retrieveWithChild(String path);
+    NodeInfo retrieveWithChild(String path,ConnectInfo connectInfo);
 
     /**
      * 更新指定节点数据
      * @param nodeInfo
      * @return
      */
-    Object updateData(NodeInfo nodeInfo);
+    NodeInfo updateData(NodeInfo nodeInfo);
 
     /**
      * 元数据信息
@@ -60,12 +60,26 @@ public interface ZookeeperService {
      * @param path 入参
      * @return 访问控制列表
      */
-    List<NodeAcls> acls(String path);
+    List<NodeAcls> acls(String path,ConnectInfo connectInfo);
 
     /**
      * 删除节点
      * @param nodeInfo
      * @return
      */
-    Boolean delete(NodeInfo nodeInfo);
+    Boolean delete(NodeInfo nodeInfo,ConnectInfo connectInfo);
+
+    /**
+     * 添加缓存
+     * @param result
+     */
+    void addCache(NodeInfo result,ConnectInfo connectInfo);
+
+
+    /**
+     * 获取数据连带其中的子节点
+     * @param nodeInfo
+     * @return
+     */
+    NodeInfo getDataWithChild(NodeInfo nodeInfo);
 }

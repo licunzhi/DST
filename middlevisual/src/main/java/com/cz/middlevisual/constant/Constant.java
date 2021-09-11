@@ -23,6 +23,10 @@ public class Constant {
 
     public final static String SPRIT = "/";
 
+    public final static Boolean TRUE = true;
+
+    public final static Boolean FALSE = false;
+
     public static class FileType {
         //文件
         public final static String FILE = "file";

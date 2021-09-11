@@ -23,7 +23,9 @@ public class NodeInfo {
     String path;
     /**节点名称*/
     String nodeName;
-
+    /**
+     * 数据内容
+     */
     String data;
     Long id;
     String fileType;
@@ -44,4 +46,8 @@ public class NodeInfo {
     NodeMetadata nodeMetadata;
     @ApiModelProperty(hidden = true)
     List<NodeAcls> nodeAclsList;
+    /**
+     * 多窗口支持需要带入连接信息用来确认是哪个连接
+     */
+    ConnectInfo connectInfo;
 }
