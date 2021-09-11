@@ -49,13 +49,13 @@ public class BaseResult<T> implements Serializable {
     }
 
     public static BaseResult failResultCreate(List<String> message) {
-        return new BaseResult(0, message, (Object) null);
+        return new BaseResult(0, message, null);
     }
 
     public static BaseResult failResultCreate(String message) {
         List<String> messageList = new ArrayList<>();
         messageList.add(message);
-        return new BaseResult(0, messageList, (Object) null);
+        return new BaseResult(0, messageList, null);
     }
 
     public static BaseResult failResultCreate(List<String> messageList, Object data) {

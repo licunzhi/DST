@@ -42,7 +42,11 @@ public class ZookeeperServiceImpl implements ZookeeperService {
     @Override
     public synchronized boolean connect(ConnectInfo connectInfo) {
         //判断是否存在连接
-        isExistConnected(connectInfo);
+        //isExistConnected(connectInfo);
+        String zkClienCacheKey =  connectInfo.getIp()+ Constant.COLON +connectInfo.getPort();
+        if (zkClientMap.containsKey(zkClienCacheKey)) {
+            return true;
+        }
         Pair<Integer, Integer> connectTime = initConnectTime(connectInfo);
         CuratorFramework zooKeeper = null;
         try {

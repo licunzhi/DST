@@ -58,7 +58,7 @@ public class Constant {
 
         private String modeName;
 
-        private NodeModel(CreateMode createMode, String modeName) {
+        NodeModel(CreateMode createMode, String modeName) {
             this.createMode = createMode;
             this.modeName = modeName;
         }
