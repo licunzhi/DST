@@ -7,12 +7,14 @@ import createPersistedState from 'vuex-persistedstate'
 * */
 
 import { ZookeeperStoreModule } from '@/components/zookeeper'
+import { IndexStoreModule } from '@/components/index'
 
 Vue.use(Vuex)
 
 const store = new Vuex.Store({
   modules: {
-    ZookeeperStoreModule
+    ZookeeperStoreModule,
+    IndexStoreModule
   },
   plugins: [
     createLogger(),

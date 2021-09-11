@@ -13,7 +13,7 @@
           :label="item.ip + ':' +item.port"
           :name="item.ip + ':' +item.port"
         >
-          <zookeeper :ref="item.ip + ':' + item.port" v-bind:settingForm="item"></zookeeper>
+          <zookeeper :ref="item.ip + ':' + item.port" v-bind:settingFormData="item"></zookeeper>
         </el-tab-pane>
       </el-tabs>
     </div>
@@ -102,6 +102,7 @@ export default {
         this.setTabsInfo(this.settingForm)
         /* locate active tabs in newer */
         this.setTabValue(`${this.settingForm.ip}:${this.settingForm.port}`)
+        this.tabValue = `${this.settingForm.ip}:${this.settingForm.port}`
       } else {
         this.$message.error(resultData.data.messageList[0])
       }
@@ -117,6 +118,12 @@ export default {
           ip: splits[0],
           port: splits[1]
         })
+        if (this.tabsInfo.length > 0) {
+          this.tabValue = `${this.tabsInfo[0].ip}:${this.tabsInfo[0].port}`
+        } else {
+          this.activeIndex = ''
+          this.tabValue = ''
+        }
       }
     },
     /* reconnect  */

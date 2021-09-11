@@ -2,9 +2,7 @@ export default {
   namespaced: true,
 
   state: {
-    /* tabs页存储的信息 */
     tabsInfo: [],
-    /* 当前激活页面位置 */
     tabValue: ''
   },
 
@@ -12,7 +10,7 @@ export default {
     tabsInfoMap (state) {
       const { tabsInfo } = state
       state.tabsInfo = tabsInfo.filter(function (value) {
-        return (value.ip && value.port)
+        return (value.key && value.path)
       })
       return state.tabsInfo
     },
@@ -23,20 +21,24 @@ export default {
 
   mutations: {
     setTabsInfo (state, payload) {
-      const {ip, port} = payload
       const { tabsInfo } = state
+      const { key, keyPath } = payload
       let resultTabs = tabsInfo.filter(function (value) {
-        return (value.ip === ip && value.port === port)
+        return value.path === keyPath.join('/')
       })
       if (resultTabs.length <= 0) {
-        state.tabsInfo.push(payload)
+        state.tabsInfo.push({
+          key: key,
+          path: keyPath.join('/')
+        })
+      } else {
+        return false
       }
     },
     removeTabsInfo (state, payload) {
-      const {ip, port} = payload
       const { tabsInfo } = state
       state.tabsInfo = tabsInfo.filter(function (value) {
-        return (value.ip !== ip || value.port !== port)
+        return value.key !== payload
       })
     },
     setTabValue (state, payload) {
