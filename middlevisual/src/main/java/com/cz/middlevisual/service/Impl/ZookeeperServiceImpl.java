@@ -50,16 +50,13 @@ public class ZookeeperServiceImpl implements ZookeeperService {
         try {
             zooKeeper = CuratorFrameworkFactory.newClient(connectInfo.getIp() + Constant.COLON + connectInfo.getPort(), new ExponentialBackoffRetry(connectTime.getKey(), connectTime.getValue()));
             zooKeeper.start();
+            zkClientList.add(zooKeeper);
         } catch (Exception e) {
             log.error("初始化ZooKeeper连接异常：】={}", e);
             throw new ServiceException("初始化ZooKeeper连接异常....】={}", e);
         }
-        if(zooKeeper.getZookeeperClient().isConnected()){
-            zkClientList.add(zooKeeper);
-            return true;
-        }
         log.info("【新增ZooKeeper节点的连接状态为：】={}", zooKeeper.getState());
-        throw new ServiceException("连接失败，查看节点连接信息是否输入正确");
+        return true;
     }
 
     @Override
