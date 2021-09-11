@@ -15,6 +15,10 @@ Software architecture description
 
 1.  Double-click to execute the `DST.exe` file
 
+#### Existing function
+- Z-PREFIX
+    - [x] zookeeper
+
 #### Participate in contribution
 
 1.  Fork this repository

@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import HelloWorld from '@/components/index/HelloWorld'
 import Main from '@/components/index/Main'
-import Zookeeper from '@/components/zookeeper/Zookeeper.vue'
+import ZookeeperWrapper from '@/components/zookeeper/ZookeeperWrapper'
 
 Vue.use(Router)
 
@@ -29,8 +29,8 @@ export default new Router({
       },
       children: [{
         path: '/zookeeper',
-        name: 'zookeeper',
-        component: Zookeeper,
+        name: 'ZookeeperWrapper',
+        component: ZookeeperWrapper,
         meta: {
           requireAuth: false
         }
