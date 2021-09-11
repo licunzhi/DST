@@ -82,4 +82,11 @@ public interface ZookeeperService {
      * @return
      */
     NodeInfo getDataWithChild(NodeInfo nodeInfo);
+
+    /**
+     * 刷新缓存
+     * @param connectInfo
+     * @return
+     */
+    NodeInfo refresh(ConnectInfo connectInfo);
 }

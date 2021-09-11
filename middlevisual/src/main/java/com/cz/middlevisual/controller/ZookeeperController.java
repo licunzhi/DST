@@ -87,4 +87,11 @@ public class ZookeeperController extends BaseController {
         Boolean result = zookeeperService.delete(nodeInfo,nodeInfo.getConnectInfo());
         return BaseResult.successResultCreate(result);
     }
+
+    @PostMapping(value = "/refresh")
+    @ApiOperation(value = "刷新缓存数据数据",notes = "返回查询结果")
+    public BaseResult<NodeInfo> refresh(@RequestBody ConnectInfo connectInfo){
+        NodeInfo result = zookeeperService.refresh(connectInfo);
+        return BaseResult.successResultCreate(result);
+    }
 }

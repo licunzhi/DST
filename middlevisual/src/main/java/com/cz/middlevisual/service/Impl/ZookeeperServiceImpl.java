@@ -10,20 +10,19 @@ import com.cz.middlevisual.vo.zookeeper.NodeAcls;
 import com.cz.middlevisual.vo.zookeeper.NodeMetadata;
 import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.curator.CuratorZookeeperClient;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.apache.zookeeper.ZooDefs;
-import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Stat;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -223,6 +222,13 @@ public class ZookeeperServiceImpl implements ZookeeperService {
         NodeInfo retrieveWithChild = retrieveWithChild(nodeInfo.getPath(),nodeInfo.getConnectInfo());
         addCache(retrieveWithChild,nodeInfo.getConnectInfo());
         return retrieveWithChild;
+    }
+
+    @Override
+    public NodeInfo refresh(ConnectInfo connectInfo) {
+        updateZkCache(connectInfo);
+
+        return zkCache.get(connectInfo.getIp()+ Constant.COLON +connectInfo.getPort());
     }
 
     /**
