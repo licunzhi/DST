@@ -15,6 +15,11 @@ Data Show Tools
 
 1.  双击执行 `DST.exe`文件
 
+
+#### 现有功能
+- Z-PREFIX
+    - [x] zookeeper
+
 #### 参与贡献
 
 1.  Fork 本仓库

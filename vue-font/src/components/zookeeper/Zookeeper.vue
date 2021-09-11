@@ -1,25 +1,8 @@
 <template>
   <div>
-    <!--顶部面包屑-->
-    <el-row>
-      <el-col :span="23" :offset="1">
-        <el-breadcrumb separator="/">
-          <el-breadcrumb-item>Z-PREFIX</el-breadcrumb-item>
-          <el-breadcrumb-item>ZooKeeper</el-breadcrumb-item>
-        </el-breadcrumb>
-      </el-col>
-    </el-row>
-
-    <el-row>
-      <el-col :span="22" :offset="1">
-        <el-button :type="zkConnectType" icon="el-icon-caret-right" circle  @click="openConnectDialog"></el-button>
-        <!--<el-button :type="zkStopType" icon="el-icon-error" circle @click="removeZkClient"></el-button>-->
-        <el-button type="primary" icon="el-icon-refresh" circle @click="refreshNodeTree"></el-button>
-      </el-col>
-    </el-row>
     <!--支撑部数据展示-->
     <el-row>
-      <el-col :span="4" :offset="1">
+      <el-col :span="4">
         <!--show-checkbox-->
         <!--default-expand-all-->
         <div class="tree">
@@ -93,29 +76,6 @@
       </el-col>
     </el-row>
 
-    <!--创建初始化链接弹窗-->
-    <el-dialog title="Connection Setting" :visible.sync="dialogConnectSetting" width="30%" :before-close="handleCloseConnectSetting">
-      <el-form ref="form" :model="settingForm" label-width="100px">
-        <el-form-item label="IP">
-          <el-input v-model="settingForm.ip"></el-input>
-        </el-form-item>
-        <el-form-item label="PORT">
-          <el-input v-model="settingForm.port"></el-input>
-        </el-form-item>
-        <el-form-item label="Sleep time">
-          <el-input v-model="settingForm.baseSleepTimeMs"></el-input>
-        </el-form-item>
-        <el-form-item label="Max Retries">
-          <el-input v-model="settingForm.maxRetries"></el-input>
-        </el-form-item>
-
-        <el-form-item>
-          <el-button type="primary" @click="onSubmit">connect</el-button>
-          <el-button @click="dialogConnectSetting= false">cancel</el-button>
-        </el-form-item>
-      </el-form>
-    </el-dialog>
-
     <!--添加节点操作-->
     <el-dialog title="Create New Node" :visible.sync="dialogCreateNewNode" width="30%" :before-close="handleCloseCreateNewNode">
       <el-form ref="createNodeForm" :model="createNodeForm" label-width="100px">
@@ -155,6 +115,10 @@ export default {
   components: {
     codemirror
   },
+  props: ['settingFormData'],
+  created () {
+    this.refreshNodeTree()
+  },
   data () {
     return {
       cmOptions: {
@@ -175,15 +139,9 @@ export default {
       nodeDataContent: '',
       nodePath: '',
       dialogConnectSetting: false,
-      settingForm: {
-        ip: '127.0.0.1',
-        port: '2181',
-        baseSleepTimeMs: 5000,
-        maxRetries: 1
-      },
       zkConnectType: 'success',
       zkStopType: 'info',
-
+      settingConnectForm: JSON.parse(JSON.stringify(this.settingFormData)),
       dialogCreateNewNode: false,
       createNodeForm: {
         name: '',
@@ -203,7 +161,8 @@ export default {
         callback: async action => {
           if (action === 'confirm') {
             const treeResponseData = await this.$http.post(ZookeeperApi.ZK_DElETE, {
-              path: data.path
+              path: data.path,
+              connectInfo: this.settingConnectForm
             })
             if (treeResponseData.data && treeResponseData.data.code === 1) {
               const parent = node.parent
@@ -220,36 +179,12 @@ export default {
       this.dialogConnectSetting = true
     },
     async refreshNodeTree () {
-      const treeResponseData = await this.$http.post(ZookeeperApi.ZK_RETRIEVE_All, {})
+      const treeResponseData = await this.$http.post(ZookeeperApi.ZK_RETRIEVE_All, {connectInfo: this.settingConnectForm})
       if (treeResponseData.data && treeResponseData.data.code === 1) {
         this.treeNodes = []
         this.treeNodes.push(treeResponseData.data.data)
       } else {
         this.treeNodes = defaultTreeNode
-      }
-    },
-    // 提交连接事件
-    /*
-    * init connect
-    *       ok -> show information
-    *       error -> init action
-    * */
-    async onSubmit () {
-      const params = this.settingForm
-      const resultData = await this.$http.post(ZookeeperApi.ZK_CONNECT, params)
-      if (resultData.data /* && resultData.data.code === 1 */) {
-        this.$message.success(resultData.data.messageList[0])
-        this.dialogConnectSetting = false
-
-        const treeResponseData = await this.$http.post(ZookeeperApi.ZK_RETRIEVE_All, {})
-        if (treeResponseData.data && treeResponseData.data.code === 1) {
-          this.treeNodes = []
-          this.treeNodes.push(treeResponseData.data.data)
-        } else {
-          this.treeNodes = defaultTreeNode
-        }
-      } else {
-        this.$message.error(resultData.data.messageList[0])
       }
     },
     removeZkClient () {
@@ -276,7 +211,8 @@ export default {
     async updateNodeData () {
       const response = await this.$http.post(ZookeeperApi.ZK_UPDATE_DATA, {
         path: this.nodePath,
-        data: this.$refs.nodeDataContent.content
+        data: this.$refs.nodeDataContent.content,
+        connectInfo: this.settingConnectForm
       })
       if (response.data && response.data.code === 1) {
         await this.refreshNodeTree()
@@ -339,7 +275,8 @@ export default {
       const resultData = await this.$http.post(ZookeeperApi.ZK_CREATE, {
         path: path,
         data: this.createNodeForm.data,
-        nodeModel: 'PERSISTENT'
+        nodeModel: 'PERSISTENT',
+        connectInfo: this.settingConnectForm
       })
       if (resultData.data && resultData.data.code === 1) {
         await this.refreshNodeTree()
@@ -360,15 +297,14 @@ export default {
 .tree{
   overflow-y: auto;
   overflow-x: auto;
-  max-height: 800px;
-  min-height: 600px;
+  min-height: 250px;
+  height: 500px;
   border-right: 1px solid #e6e6e6;
 }
 .codeContent {
   & /deep/ .CodeMirror {
-    height: 600px!important;
-    max-height: 600px!important;
-    min-height: 600px!important;
+    height: 400px!important;
+    min-height: 200px!important;
   }
 }
 

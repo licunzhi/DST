@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HelloWorld from '@/components/index/HelloWorld'
 import Main from '@/components/index/Main'
-import Zookeeper from '@/components/zookeeper/Zookeeper.vue'
+import ZookeeperWrapper from '@/components/zookeeper/ZookeeperWrapper'
+import dst from '@/components/dst/dst'
 
 Vue.use(Router)
 
@@ -12,28 +12,17 @@ export default new Router({
   // base: '/sakura',
   routes: [
     {
-      path: '/hello',
-      name: 'HelloWorld',
-      component: HelloWorld,
-      meta: {
-        requireAuth: true
-      },
-      children: []
-    },
-    {
       path: '/',
       name: 'Main',
       component: Main,
-      meta: {
-        requireAuth: true
-      },
       children: [{
         path: '/zookeeper',
-        name: 'zookeeper',
-        component: Zookeeper,
-        meta: {
-          requireAuth: false
-        }
+        name: 'ZookeeperWrapper',
+        component: ZookeeperWrapper
+      }, {
+        path: '/dst',
+        name: 'dst',
+        component: dst
       }]
     }
   ]
