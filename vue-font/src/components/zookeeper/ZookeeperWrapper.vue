@@ -9,7 +9,7 @@
       <el-tabs v-model="tabValue" type="card" editable @edit="handleTabsEdit">
         <el-tab-pane
           :key="item.ip + ':' + item.port"
-          v-for="(item) in tabsInfoMap"
+          v-for="(item) in tabsInfo"
           :label="item.ip + ':' +item.port"
           :name="item.ip + ':' +item.port"
         >
@@ -73,8 +73,7 @@ export default {
     ...mapState(StoreNamespace.ZOOKEEPER_STORE_MODULE, {
       tabsInfo: (state) => state.tabsInfo,
       tabValueStore: (state) => state.tabValue
-    }),
-    ...mapGetters(StoreNamespace.ZOOKEEPER_STORE_MODULE, ['tabsInfoMap', 'getTabValue'])
+    })
   },
   mounted () {
     let tabsInfoMap = this.tabsInfo
@@ -87,6 +86,7 @@ export default {
   },
   methods: {
     ...mapMutations(StoreNamespace.ZOOKEEPER_STORE_MODULE, ['setTabsInfo', 'removeTabsInfo', 'setTabValue']),
+    ...mapGetters(StoreNamespace.ZOOKEEPER_STORE_MODULE, ['tabsInfoMap', 'getTabValue']),
     openConnectDialog () {
       this.dialogConnectSetting = true
     },

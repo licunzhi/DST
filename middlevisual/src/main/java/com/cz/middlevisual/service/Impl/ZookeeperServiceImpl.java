@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 @Service
 public class ZookeeperServiceImpl implements ZookeeperService {
 
-    Map<String,CuratorFramework> zkClientMap;
+    Map<String,CuratorFramework> zkClientMap = new HashMap<>();
 
     Map<String,NodeInfo> zkCache = new HashMap<>();
 
