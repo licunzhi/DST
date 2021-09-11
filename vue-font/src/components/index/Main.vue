@@ -3,14 +3,14 @@
       <el-container>
         <el-aside width="auto" :class="{'left-is-collapse' : isCollapse}">
           <el-menu class="el-menu-vertical-demo"
+                   :default-active="activeIndex"
                    @open="handleOpen" @close="handleClose"
                    :collapse="isCollapse"
                    @select="handleSelect"
                    background-color="#263445"
                    text-color="rgb(191, 203, 217)"
-                   active-text-color="rgb(64, 158, 255)"
-                   :router='true'>
-            <el-menu-item>
+                   active-text-color="rgb(64, 158, 255)">
+            <el-menu-item index="DataSourceTools">
               <i class="el-icon-menu"></i>
               <span slot="title" style="font-family:fantasy">DataSourceTools</span>
             </el-menu-item>
@@ -19,7 +19,7 @@
                 <i class="el-icon-document-remove"></i>
                 <span slot="title">Z-PREFIX</span>
               </template>
-              <el-menu-item index="zookeeper">Zookeeper</el-menu-item>
+              <el-menu-item index="zookeeper">zookeeper</el-menu-item>
             </el-submenu>
           </el-menu>
         </el-aside>
@@ -35,15 +35,13 @@
             <div class="div-inline-block">
               <el-breadcrumb separator="/">
                 <el-breadcrumb-item :to="{ path: '/' }">DataSourceTools</el-breadcrumb-item>
-                <el-breadcrumb-item v-if="pathParent !== '' " :to="{ path: locationPath }">{{ pathParent }}</el-breadcrumb-item>
-                <el-breadcrumb-item  v-if="pathChild !== '' "><a :to="{ path: '/zookeeper' }">{{ pathChild }}</a></el-breadcrumb-item>
               </el-breadcrumb>
             </div>
           </el-header>
           <el-main>
-            <el-tabs v-model="editableTabsValue" closable>
-              <el-tab-pane :key="item.name" v-for="(item) in editableTabs" :label="item.title" :name="item.name">
-                <router-view></router-view>
+            <el-tabs v-model="tabValue" closable @tab-click="handleTabsClick" @edit="handleTabsEdit">
+              <el-tab-pane :key="item.path" v-for="(item) in tabsInfoMap" :label="item.path" :name="item.key">
+                <RouterTabView v-bind:routerPath="item"></RouterTabView>
               </el-tab-pane>
             </el-tabs>
           </el-main>
@@ -53,34 +51,52 @@
 </template>
 
 <script>
+import RouterTabView from '@/components/index/RouterTabView'
+import { mapState, mapMutations, mapGetters } from 'vuex'
+import { StoreNamespace } from '@/store/store-namespace.data'
+
 export default {
   name: 'Main',
+  components: {
+    RouterTabView
+  },
   data () {
     return {
       isCollapse: false,
       pathParent: '',
       pathChild: '',
       locationPath: '',
-
-      editableTabsValue: '2',
-      editableTabs: [{
-        title: 'DataSourceTools',
-        name: '1',
-        content: 'Tab 1 content'
-      }, {
-        title: 'Z-PREFIX/Zookeeper',
-        name: '2',
-        content: 'Tab 2 content'
-      }],
-      tabIndex: 2
+      activeIndex: 'DataSourceTools',
+      tabValue: ''
+    }
+  },
+  computed: {
+    ...mapState(StoreNamespace.INDEX_STORE_MODULE, {
+      tabsInfo: (state) => state.tabsInfo,
+      tabValueStore: (state) => state.tabValue
+    }),
+    ...mapGetters(StoreNamespace.INDEX_STORE_MODULE, ['tabsInfoMap', 'getTabValue'])
+  },
+  mounted () {
+    let tabsInfoMap = this.tabsInfo
+    if (this.tabValue === '') {
+      this.tabValue = tabsInfoMap.length > 0 ? tabsInfoMap[0].key : ''
+    } else if (this.tabValueStore !== '') {
+      this.tabValue = this.tabValueStore
+    }
+  },
+  watch: {
+    tabValue (value) {
+      this.setTabValue(value)
+      this.activeIndex = value
     }
   },
   methods: {
+    ...mapMutations(StoreNamespace.INDEX_STORE_MODULE, ['setTabsInfo', 'removeTabsInfo', 'setTabValue']),
     handleSelect (key, keyPath) {
-      console.log(keyPath)
-      this.pathParent = keyPath[0] || ''
-      this.pathChild = key || ''
-      this.locationPath = key || ''
+      this.setTabsInfo({key, keyPath})
+      this.setTabValue(key)
+      this.tabValue = key
     },
     handleOpen (key, keyPath) {
       // console.log(key, keyPath)
@@ -89,32 +105,22 @@ export default {
       // console.log(key, keyPath)
     },
 
+    handleTabsClick (tab, event) {
+      this.activeIndex = tab.name
+    },
     handleTabsEdit (targetName, action) {
       if (action === 'add') {
-        let newTabName = ++this.tabIndex + ''
-        this.editableTabs.push({
-          title: 'New Tab',
-          name: newTabName,
-          content: 'New Tab content'
-        })
-        this.editableTabsValue = newTabName
       }
       if (action === 'remove') {
-        let tabs = this.editableTabs
-        let activeName = this.editableTabsValue
-        if (activeName === targetName) {
-          tabs.forEach((tab, index) => {
-            if (tab.name === targetName) {
-              let nextTab = tabs[index + 1] || tabs[index - 1]
-              if (nextTab) {
-                activeName = nextTab.name
-              }
-            }
-          })
+        this.removeTabsInfo(targetName)
+        /* if remove check this, need to change location to others */
+        if (this.tabsInfo.length > 0) {
+          this.activeIndex = this.tabsInfo[0].key
+          this.tabValue = this.tabsInfo[0].key
+        } else {
+          this.activeIndex = ''
+          this.tabValue = ''
         }
-
-        this.editableTabsValue = activeName
-        this.editableTabs = tabs.filter(tab => tab.name !== targetName)
       }
     }
 

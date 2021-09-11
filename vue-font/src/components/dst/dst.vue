@@ -1,0 +1,36 @@
+<template>
+  <div>
+    <pre>
+      <code>
+      _____       _____     _______
+      |  __ \     / ____|   |__   __|
+      | |  | |   | (___        | |
+      | |  | |    \___ \       | |
+      | |__| |    ____) |      | |
+      |_____/    |_____/       |_|
+
+      Data Service Tools
+
+      Date: 2021 - now
+      Author: mm zz
+      github:  mm -> https://github.com/836537471
+      zz -> https://github.com/licunzhi
+      ---------------------------------
+      gitee:   mm -> https://gitee.com/caiminzs
+      zz -> https://gitee.com/mk567
+
+    </code>
+    </pre>
+
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'dst'
+}
+</script>
+
+<style scoped>
+
+</style>
