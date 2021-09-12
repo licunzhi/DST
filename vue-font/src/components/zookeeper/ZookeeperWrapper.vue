@@ -99,7 +99,7 @@ export default {
         this.dialogConnectSetting = false
 
         /* fill tabs info to local */
-        this.setTabsInfo(this.settingForm)
+        this.setTabsInfo(JSON.parse(JSON.stringify(this.settingForm)))
         /* locate active tabs in newer */
         this.setTabValue(`${this.settingForm.ip}:${this.settingForm.port}`)
         this.tabValue = `${this.settingForm.ip}:${this.settingForm.port}`
