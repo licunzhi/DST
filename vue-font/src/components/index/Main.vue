@@ -39,6 +39,9 @@
             </div>
           </el-header>
           <el-main>
+            <template v-if="tabValue == 0">
+              <RouterTabView v-bind:routerPath="{key: 'DataSourceTools', path: 'DataSourceTools'}"></RouterTabView>
+            </template>
             <el-tabs v-model="tabValue" closable @tab-click="handleTabsClick" @edit="handleTabsEdit">
               <el-tab-pane :key="item.path" v-for="(item) in tabsInfoMap" :label="item.path" :name="item.key">
                 <RouterTabView v-bind:routerPath="item"></RouterTabView>
