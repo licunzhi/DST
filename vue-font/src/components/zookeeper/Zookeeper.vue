@@ -83,6 +83,15 @@
           <el-input v-model="createNodeForm.name"></el-input>
         </el-form-item>
 
+        <el-form-item label="Node Type" prop="nodeModel">
+          <el-select v-model="createNodeForm.nodeModel" placeholder="Please choose node model">
+            <el-option label="PERSISTENT" value="PERSISTENT"></el-option>
+            <el-option label="PERSISTENT_SEQUENTIAL" value="PERSISTENT_SEQUENTIAL"></el-option>
+            <el-option label="EPHEMERAL" value="EPHEMERAL"></el-option>
+            <el-option label="EPHEMERAL_SEQUENTIAL" value="EPHEMERAL_SEQUENTIAL"></el-option>
+          </el-select>
+        </el-form-item>
+
         <el-form-item label="Node Data" prop="data">
           <el-input type="textarea" :rows="10" v-model="createNodeForm.data"></el-input>
         </el-form-item>
@@ -146,6 +155,7 @@ export default {
       createNodeForm: {
         name: '',
         data: '',
+        nodeModel: 'PERSISTENT',
         nodeData: '',
         node: ''
       }
@@ -275,7 +285,7 @@ export default {
       const resultData = await this.$http.post(ZookeeperApi.ZK_CREATE, {
         path: path,
         data: this.createNodeForm.data,
-        nodeModel: 'PERSISTENT',
+        nodeModel: this.createNodeForm.nodeModel,
         connectInfo: this.settingConnectForm
       })
       if (resultData.data && resultData.data.code === 1) {
