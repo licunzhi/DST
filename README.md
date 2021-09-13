@@ -16,7 +16,9 @@ Data Show Tools
 1.  双击执行 `DST.exe`文件
 
 
-#### 现有功能
+#### 功能列表
+- K-PREFIX
+    - [ ] kafka
 - Z-PREFIX
     - [x] zookeeper
     
