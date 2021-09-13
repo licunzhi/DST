@@ -90,7 +90,9 @@ export default {
     openConnectDialog () {
       this.dialogConnectSetting = true
     },
-    handleCloseConnectSetting () {},
+    handleCloseConnectSetting () {
+      this.dialogConnectSetting = false
+    },
     async onSubmit () {
       const params = this.settingForm
       const resultData = await this.$http.post(ZookeeperApi.ZK_CONNECT, params)
