@@ -1,4 +1,4 @@
-package com.cz.middlevisual.controller;
+package com.cz.middlevisual.controller.zookeeper;
 
 import com.cz.middlevisual.base.BaseController;
 import com.cz.middlevisual.base.BaseResult;

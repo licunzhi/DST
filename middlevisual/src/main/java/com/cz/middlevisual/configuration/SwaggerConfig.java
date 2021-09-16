@@ -21,13 +21,23 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 public class SwaggerConfig {
 
     @Bean
-    public Docket docket() {
+    public Docket docketZookeeper() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.cz.middlevisual.controller"))
+                .apis(RequestHandlerSelectors.basePackage("com.cz.middlevisual.controller.zookeeper"))
                 .paths(PathSelectors.any())
-                .build();
+                .build().groupName("zookeeper");
+    }
+
+    @Bean
+    public Docket docketKafka() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .apiInfo(apiInfo())
+                .select()
+                .apis(RequestHandlerSelectors.basePackage("com.cz.middlevisual.controller.kafka"))
+                .paths(PathSelectors.any())
+                .build().groupName("kafka");
     }
 
     public ApiInfo apiInfo() {
