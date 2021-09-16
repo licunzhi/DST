@@ -40,6 +40,16 @@ public class SwaggerConfig {
                 .build().groupName("kafka");
     }
 
+    @Bean
+    public Docket docketElasticsearch() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .apiInfo(apiInfo())
+                .select()
+                .apis(RequestHandlerSelectors.basePackage("com.cz.middlevisual.controller.kafka"))
+                .paths(PathSelectors.any())
+                .build().groupName("elasticsearch");
+    }
+
     public ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title("Plug-in visualization")
