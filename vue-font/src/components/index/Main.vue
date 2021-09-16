@@ -14,6 +14,20 @@
               <i class="el-icon-menu"></i>
               <span slot="title" style="font-family:fantasy">DataSourceTools</span>
             </el-menu-item>
+            <el-submenu index="E-PREFIX">
+              <template slot="title">
+                <i class="el-icon-document-remove"></i>
+                <span slot="title">E-PREFIX</span>
+              </template>
+              <el-menu-item index="es">elasticsearch</el-menu-item>
+            </el-submenu>
+            <el-submenu index="K-PREFIX">
+              <template slot="title">
+                <i class="el-icon-document-remove"></i>
+                <span slot="title">K-PREFIX</span>
+              </template>
+              <el-menu-item index="kafka">kafka</el-menu-item>
+            </el-submenu>
             <el-submenu index="Z-PREFIX">
               <template slot="title">
                 <i class="el-icon-document-remove"></i>
