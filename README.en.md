@@ -30,3 +30,4 @@ Software architecture description
 #### Author Information
 - [caimin](https://github.com/836537471)
 - [licunzhi](https://github.com/licunzhi)
+- [xiangdongdong](https://github.com/xiangdongdong)

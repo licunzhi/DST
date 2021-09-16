@@ -6,14 +6,16 @@ Data Show Tools
 #### 软件架构
 软件架构说明
 
+#### 集成执行文件下载地址：
+- [zookeeper版本](./DST/release1.0.0/DST.exe)
 
 #### 安装教程
-
-1. 双击执行 `DST.exe`文件
+1. 下载适应版本的exe可执行文件
+2. 双击执行 `DST-*.exe`文件
 
 #### 使用说明
 
-1.  双击执行 `DST.exe`文件
+1.  双击执行 `DST-*.exe`文件
 
 
 #### 功能列表
@@ -41,3 +43,4 @@ Data Show Tools
 #### 作者信息
 - [caimin](https://github.com/836537471)
 - [licunzhi](https://github.com/licunzhi)
+- [xiangdongdong](https://github.com/xiangdongdong)

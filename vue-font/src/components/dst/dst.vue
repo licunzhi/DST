@@ -19,12 +19,14 @@
             Data Service Tools
 
             Date: 2021 - now
-            Author: mm zz
+            Author: mm zz dd
             github:  mm -> https://github.com/836537471
-            zz -> https://github.com/licunzhi
-            ---------------------------------
+                     zz -> https://github.com/licunzhi
+                     dd -> https://github.com/xiangdongdong
+                     ---------------------------------
             gitee:   mm -> https://gitee.com/caiminzs
-            zz -> https://gitee.com/mk567
+                     zz -> https://gitee.com/mk567
+                     dd -> https://gitee.com/xiangdd
 
           </code>
         </pre>
